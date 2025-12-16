@@ -139,3 +139,4 @@ async function addJewelryCategories() {
 
 addJewelryCategories();
 
+

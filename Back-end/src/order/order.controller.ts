@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { OrderService } from './service/order.service';
 import { CreateOrderDto } from './dto/CreateOrder.dto';
 import { CreateCartDto } from 'src/cart/dto/CreateCart.dto';
@@ -57,7 +57,13 @@ export class OrderController {
   }
 
   @Get('revenue-profit')
-  async getRevenueAndProfit() {
+  async getRevenueAndProfit(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const data = await this.orderService.getRevenueAndProfitByDateRange(start, end);
+      return data;
+    }
     const data = await this.orderService.getRevenueAndProfit();
     return data;
   }

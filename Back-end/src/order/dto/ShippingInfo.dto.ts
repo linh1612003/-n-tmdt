@@ -22,3 +22,4 @@ export class ShippingInfoDto {
   addressDetail: string;
 }
 
+

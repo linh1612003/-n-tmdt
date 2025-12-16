@@ -88,4 +88,12 @@ export declare class OrderService {
         totalCost: number;
         profit: number;
     }>;
+    getRevenueAndProfitByDateRange(startDate: Date, endDate: Date): Promise<{
+        totalRevenue: number;
+        totalCost: number;
+        profit: number;
+        orderCount: number;
+        startDate: Date;
+        endDate: Date;
+    }>;
 }

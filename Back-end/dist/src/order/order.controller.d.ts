@@ -52,7 +52,7 @@ export declare class OrderController {
     getTotalRevenue(): Promise<{
         totalRevenue: any;
     }>;
-    getRevenueAndProfit(): Promise<{
+    getRevenueAndProfit(startDate?: string, endDate?: string): Promise<{
         totalRevenue: number;
         totalCost: number;
         profit: number;

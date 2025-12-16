@@ -25,6 +25,15 @@ const orderApi = {
       getOrderHistory(userId){
         const url =`http://localhost:5000/api/orders/${userId}/user`
         return axiosClient.get(url);
+      },
+      getRevenueAndProfit(startDate, endDate) {
+        const url = '/api/orders/revenue-profit';
+        const params = {};
+        if (startDate && endDate) {
+            params.startDate = startDate;
+            params.endDate = endDate;
+        }
+        return axiosClient.get(url, { params });
       }
 }
 

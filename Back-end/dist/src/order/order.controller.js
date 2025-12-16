@@ -46,7 +46,13 @@ let OrderController = class OrderController {
         const totalRevenue = await this.orderService.getTotalRevenue();
         return { totalRevenue };
     }
-    async getRevenueAndProfit() {
+    async getRevenueAndProfit(startDate, endDate) {
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const data = await this.orderService.getRevenueAndProfitByDateRange(start, end);
+            return data;
+        }
         const data = await this.orderService.getRevenueAndProfit();
         return data;
     }
@@ -111,8 +117,10 @@ __decorate([
 ], OrderController.prototype, "getTotalRevenue", null);
 __decorate([
     (0, common_1.Get)('revenue-profit'),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], OrderController.prototype, "getRevenueAndProfit", null);
 exports.OrderController = OrderController = __decorate([

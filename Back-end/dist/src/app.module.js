@@ -22,6 +22,7 @@ const menu_module_1 = require("./menu/menu.module");
 const order_module_1 = require("./order/order.module");
 const review_module_1 = require("./review/review.module");
 const notification_module_1 = require("./notification/notification.module");
+const powerbi_module_1 = require("./powerbi/powerbi.module");
 require('dotenv').config();
 let AppModule = class AppModule {
 };
@@ -53,6 +54,7 @@ exports.AppModule = AppModule = __decorate([
             order_module_1.OrderModule,
             review_module_1.ReviewModule,
             notification_module_1.NotificationModule,
+            powerbi_module_1.PowerBIModule,
         ],
     })
 ], AppModule);

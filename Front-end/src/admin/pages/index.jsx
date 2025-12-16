@@ -85,11 +85,21 @@ const AdminPage = () => {
                     >
                         <Link to='/admin/orders'>Quản lý đơn hàng</Link>
                     </Menu.Item>
+                    <Menu.Item
+                        key='/admin'
+                        style={
+                            selectedKey === '/admin' || selectedKey === '/admin/'
+                                ? { background: 'black', color: 'white' }
+                                : {}
+                        }
+                    >
+                        <Link to='/admin'>Thống kê</Link>
+                    </Menu.Item>
                     {/* Thêm các item khác nếu cần */}
                 </Menu>
             </Sider>
-            <Layout style={{ width: '' }}>
-                <Header style={{ background: '#fff', padding: 0 }}>
+            <Layout style={{ width: '', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <Header style={{ background: '#fff', padding: 0, flexShrink: 0 }}>
                     <div
                         style={{
                             padding: '0 16px',
@@ -129,10 +139,21 @@ const AdminPage = () => {
                     </div>
                 </Header>
 
-                <Content style={{ margin: '0 16px', padding: 24, minHeight: 280 }}>
+                <Content style={{ 
+                    margin: location.pathname === '/admin' || location.pathname === '/admin/' ? 0 : '0 16px', 
+                    padding: location.pathname === '/admin' || location.pathname === '/admin/' ? 0 : 24, 
+                    minHeight: location.pathname === '/admin' || location.pathname === '/admin/' ? 0 : 280, 
+                    height: location.pathname === '/admin' || location.pathname === '/admin/' ? '100%' : 'auto',
+                    flex: 1,
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
                     <Outlet />
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>Admin  ©2024</Footer>
+                {location.pathname !== '/admin' && location.pathname !== '/admin/' && (
+                    <Footer style={{ textAlign: 'center', flexShrink: 0 }}>Admin  ©2024</Footer>
+                )}
             </Layout>
             <MaterialMenu
                 anchorEl={anchorEl}

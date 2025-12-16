@@ -286,4 +286,8 @@ export class OrderService {
   async getRevenueAndProfit() {
     return await this.orderRepository.getRevenueAndProfit();
   }
+
+  async getRevenueAndProfitByDateRange(startDate: Date, endDate: Date) {
+    return await this.orderRepository.getRevenueAndProfitByDateRange(startDate, endDate);
+  }
 }

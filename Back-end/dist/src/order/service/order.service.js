@@ -238,6 +238,9 @@ let OrderService = class OrderService {
     async getRevenueAndProfit() {
         return await this.orderRepository.getRevenueAndProfit();
     }
+    async getRevenueAndProfitByDateRange(startDate, endDate) {
+        return await this.orderRepository.getRevenueAndProfitByDateRange(startDate, endDate);
+    }
 };
 exports.OrderService = OrderService;
 exports.OrderService = OrderService = __decorate([

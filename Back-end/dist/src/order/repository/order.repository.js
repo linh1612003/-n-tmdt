@@ -104,6 +104,41 @@ let OrderRepository = class OrderRepository {
             profit,
         };
     }
+    async getRevenueAndProfitByDateRange(startDate, endDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        const orders = await this.orderModel.find({
+            status: 'success',
+            orderDate: {
+                $gte: start,
+                $lte: end,
+            },
+        });
+        let totalRevenue = 0;
+        let totalCost = 0;
+        let orderCount = orders.length;
+        orders.forEach((order) => {
+            totalRevenue += order.totalAmount || 0;
+            if (order.products && Array.isArray(order.products)) {
+                order.products.forEach((product) => {
+                    const importPrice = product.importPrice || 0;
+                    const quantity = product.quantity || 0;
+                    totalCost += importPrice * quantity;
+                });
+            }
+        });
+        const profit = totalRevenue - totalCost;
+        return {
+            totalRevenue,
+            totalCost,
+            profit,
+            orderCount,
+            startDate: start,
+            endDate: end,
+        };
+    }
 };
 exports.OrderRepository = OrderRepository;
 exports.OrderRepository = OrderRepository = __decorate([

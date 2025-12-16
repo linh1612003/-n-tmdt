@@ -4,6 +4,7 @@ import MenuManagement from "../admin/pages/Menu/MenuManagement";
 import OrderManagement from "../admin/pages/Order/OrderManagement";
 import ProductManagement from "../admin/pages/Product/ProductManagement";
 import CategoryManagement from "../admin/pages/Category/CategoryManagement";
+import PowerBIPage from "../admin/pages/PowerBI";
 import AboutCompany from "../pages/AboutCompany";
 import AccountInfo from "../pages/AccountInfo";
 import Account from "../pages/AccountInfo/components/Account";
@@ -40,6 +41,10 @@ export const routes = [
         isPrivate: true,
         children: [
             {
+              path: '',
+              page: PowerBIPage,
+            },
+            {
               path: 'products',
               page: ProductManagement,
             },
@@ -54,6 +59,10 @@ export const routes = [
             {
               path: 'orders',
               page: OrderManagement,
+            },
+            {
+              path: 'powerbi',
+              page: PowerBIPage,
             },
           ],
     },

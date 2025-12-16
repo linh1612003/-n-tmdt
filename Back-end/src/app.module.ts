@@ -13,6 +13,7 @@ import { MenuModule } from './menu/menu.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
 import { NotificationModule } from './notification/notification.module';
+import { PowerBIModule } from './powerbi/powerbi.module';
 
 require('dotenv').config();
 
@@ -42,6 +43,7 @@ require('dotenv').config();
     OrderModule,
     ReviewModule,
     NotificationModule,
+    PowerBIModule,
   ],
 })
 export class AppModule {}

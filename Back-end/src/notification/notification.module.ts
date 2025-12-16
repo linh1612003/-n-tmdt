@@ -17,3 +17,4 @@ import { Notification, NotificationSchema } from './schema/notification.schema';
 })
 export class NotificationModule {}
 
+
