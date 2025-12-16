@@ -1,0 +1,113 @@
+.forgot-password-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.forgot-password-container .form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    background-color: #ecf0f3;
+    box-shadow: 10px 10px 10px #d1d9e6, -10px -10px 10px #f9f9f9;
+    border-radius: 12px;
+}
+
+.forgot-password-container .form_title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #181818;
+    margin-bottom: 10px;
+}
+
+.forgot-password-container .form__span {
+    font-size: 13px;
+    color: #a0a5a8;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.forgot-password-container .form__input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ecf0f3;
+    box-shadow: inset 5px 5px 5px #d1d9e6, inset -5px -5px 5px #f9f9f9;
+    font-size: 14px;
+    color: #181818;
+    outline: none;
+}
+
+.forgot-password-container .form__input:focus {
+    box-shadow: inset 2px 2px 2px #d1d9e6, inset -2px -2px 2px #f9f9f9;
+}
+
+.forgot-password-container .form__button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4b70e2;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 10px #d1d9e6, -5px -5px 10px #f9f9f9;
+}
+
+.forgot-password-container .form__button:hover:not(:disabled) {
+    background-color: #3d5bc7;
+    transform: translateY(-2px);
+    box-shadow: 7px 7px 15px #d1d9e6, -7px -7px 15px #f9f9f9;
+}
+
+.forgot-password-container .form__button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.forgot-password-container .form__button.submit {
+    background-color: #4b70e2;
+}
+
+.forgot-password-container .form__link {
+    color: #4b70e2;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.3s ease;
+}
+
+.forgot-password-container .form__link:hover {
+    color: #3d5bc7;
+    text-decoration: underline;
+}
+
+.text-danger {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    width: 100%;
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .forgot-password-container {
+        padding: 20px;
+    }
+    
+    .forgot-password-container .form {
+        padding: 30px 20px;
+    }
+}
+
