@@ -24,7 +24,7 @@ import { UserModule } from 'src/user/user.module';
   ],
   controllers: [ProductController],
   providers: [ProductService, ProductRepository, TypeService, TypeRepository],
-  exports: [ProductService, ProductRepository],
+  exports: [ProductService],
 })
 export class ProductModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

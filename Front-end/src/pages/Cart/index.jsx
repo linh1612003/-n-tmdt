@@ -12,7 +12,7 @@ import { formatPrice } from '../../../src/utils/common';
 import cartsApi from '../../api/cartApi';
 import orderApi from '../../api/ordersApi';
 import userApi from '../../api/userApi';
-import SearchAddressField from '../../components/form-controls/SearchAddressField';
+import VietnamAddressField from '../../components/form-controls/VietnamAddressField';
 import { removeFromCart } from './cartSlice';
 import CartClear from './components/CartClear';
 import { cartItemsCountSelector, cartTotalSelector } from './selectors';
@@ -124,8 +124,9 @@ const useStyles = makeStyles((theme) => ({
     },
     leftPanel: {
         width: '50%',
-        borderRight: '1px solid black',
-        padding: '20px',
+        borderRight: '1px solid #e0e0e0',
+        padding: '30px',
+        backgroundColor: '#fafafa',
     },
     rightPanel: {
         width: '50%',
@@ -133,7 +134,7 @@ const useStyles = makeStyles((theme) => ({
     },
     input: {
         fontFamily: 'monospace',
-        height: '60px',
+        width: '100%',
     },
     img: {
         height: '120px',
@@ -141,24 +142,28 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '15px',
     },
     item: {
-        marginBottom: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: theme.spacing(1),
+        marginBottom: theme.spacing(3),
+    },
+    name: {
+        fontWeight: '600',
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#333',
+        marginBottom: '8px',
+    },
+    address: {
+        backgroundColor: 'white',
+        padding: theme.spacing(3),
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
     },
 }));
 
 const validationSchema = Yup.object().shape({
-    displayName: Yup.string()
-        .required('Vui lòng nhập tên người đặt hàng')
-        .min(2, 'Tên người đặt hàng phải có ít nhất 2 ký tự'),
-    contactPhone: Yup.string()
-        .required('Vui lòng nhập số điện thoại')
-        .matches(
-            /^(0|\+84|84)[0-9]{9,10}$/,
-            'Số điện thoại không đúng định dạng. Vui lòng nhập số điện thoại Việt Nam (10 số bắt đầu bằng 0)'
-        ),
-    address: Yup.string()
-        .required('Vui lòng nhập địa chỉ (quận, thành phố)'),
-    addressDetail: Yup.string()
-        .required('Vui lòng nhập số nhà, tên đường'),
+
 });
 function CartPages(props) {
     //=================================================================================================================================
@@ -228,7 +233,14 @@ function CartPages(props) {
                 ]);
 
                 setCartList(cartList);
-                setFormData(userData);
+                // Map dữ liệu từ userData vào formData
+                setFormData({
+                    receiver: userData.displayName || '',
+                    phone: userData.contactPhone || '',
+                    address: userData.address || '',
+                    addressDetail: userData.addressDetail || '',
+                    isInCart: true,
+                });
             } catch (error) {
                 console.log('Failed to fetch data', error);
                 setError('Failed to fetch data');
@@ -329,7 +341,12 @@ function CartPages(props) {
                                 <Typography
                                     component='h1'
                                     variant='h5'
-                                    style={{ fontFamily: 'monospace', marginBottom: '20px' }}
+                                    style={{ 
+                                        fontFamily: 'monospace', 
+                                        marginBottom: '24px',
+                                        fontWeight: 'bold',
+                                        color: '#222'
+                                    }}
                                 >
                                     Thông tin vận chuyển
                                 </Typography>
@@ -339,81 +356,72 @@ function CartPages(props) {
                                     validationSchema={validationSchema}
                                     onSubmit={handleBuyNow}
                                 >
-                                    {({ handleChange, handleBlur, errors, touched }) => (
+                                    {({ handleChange, handleBlur }) => (
                                         <Form className={classes.wrapper}>
-                                            <Form className={classes.wrapper}>
-                                                <Box className={classes.item}>
-                                                    <Typography className={classes.name}>
-                                                        Tên người đặt
-                                                    </Typography>
-                                                    <Field
-                                                        as={TextField}
-                                                        name='displayName'
-                                                        className={classes.input}
-                                                        variant='outlined'
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        fullWidth={true}
-                                                        fontFamily='monospace'
-                                                        error={touched.displayName && !!errors.displayName}
-                                                        helperText={touched.displayName && errors.displayName}
-                                                    />
-                                                </Box>
-                                                <Box className={classes.item}>
-                                                    <Typography className={classes.name}>
-                                                        Địa chỉ ( quận , thành phố )
-                                                    </Typography>
-                                                    <Field
-                                                        as={SearchAddressField}
-                                                        name='address'
-                                                        className={classes.input}
-                                                        variant='outlined'
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        fullWidth={true}
-                                                        error={touched.address && !!errors.address}
-                                                        helperText={touched.address && errors.address}
-                                                    />
-                                                </Box>
-                                                <Box className={classes.item}>
-                                                    <Typography className={classes.name}>
-                                                        Số nhà{' '}
-                                                    </Typography>
-                                                    <Field
-                                                        as={TextField}
-                                                        name='addressDetail'
-                                                        className={classes.input}
-                                                        variant='outlined'
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        fullWidth={true}
-                                                        error={touched.addressDetail && !!errors.addressDetail}
-                                                        helperText={touched.addressDetail && errors.addressDetail}
-                                                    />
-                                                </Box>
-
-                                                <Box className={classes.item}>
-                                                    <Typography className={classes.name}>
-                                                        Số điện thoại
-                                                    </Typography>
-                                                    <Field
-                                                        as={TextField}
-                                                        name='contactPhone'
-                                                        className={classes.input}
-                                                        variant='outlined'
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        fullWidth={true}
-                                                        error={touched.contactPhone && !!errors.contactPhone}
-                                                        helperText={touched.contactPhone && errors.contactPhone}
-                                                    />
-                                                </Box>
-                                            </Form>
+                                            <Box className={classes.item}>
+                                                <Typography className={classes.name}>
+                                                    Tên người đặt <span style={{ color: 'red' }}>*</span>
+                                                </Typography>
+                                                <Field
+                                                    as={TextField}
+                                                    name='receiver'
+                                                    className={classes.input}
+                                                    variant='outlined'
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    fullWidth={true}
+                                                    size='small'
+                                                    style={{ fontFamily: 'monospace' }}
+                                                />
+                                            </Box>
+                                            <Box className={classes.item}>
+                                                <Typography className={classes.name}>
+                                                    Địa chỉ (Tỉnh/TP - Quận/Huyện - Phường/Xã) <span style={{ color: 'red' }}>*</span>
+                                                </Typography>
+                                                <div className={classes.input}>
+                                                    <VietnamAddressField name='address' />
+                                                </div>
+                                            </Box>
+                                            <Box className={classes.item}>
+                                                <Typography className={classes.name}>
+                                                    Số nhà, tên đường <span style={{ color: 'red' }}>*</span>
+                                                </Typography>
+                                                <Field
+                                                    as={TextField}
+                                                    name='addressDetail'
+                                                    className={classes.input}
+                                                    variant='outlined'
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    fullWidth={true}
+                                                    size='small'
+                                                    placeholder="Ví dụ: 356 Kim Giang"
+                                                    style={{ fontFamily: 'monospace' }}
+                                                />
+                                            </Box>
+                                            <Box className={classes.item}>
+                                                <Typography className={classes.name}>
+                                                    Số điện thoại <span style={{ color: 'red' }}>*</span>
+                                                </Typography>
+                                                <Field
+                                                    as={TextField}
+                                                    name='phone'
+                                                    className={classes.input}
+                                                    variant='outlined'
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    fullWidth={true}
+                                                    size='small'
+                                                    placeholder="Ví dụ: 0968061203"
+                                                    style={{ fontFamily: 'monospace' }}
+                                                />
+                                            </Box>
                                             <Box
                                                 style={{
                                                     justifyContent: 'center',
                                                     display: 'flex',
                                                     alignItems: 'center',
+                                                    marginTop: '24px',
                                                 }}
                                             >
                                                 <Button
@@ -422,15 +430,28 @@ function CartPages(props) {
                                                     color='primary'
                                                     type='submit'
                                                     style={{
-                                                        marginTop: '20px',
                                                         background: 'black',
-                                                        borderRadius: '0px',
+                                                        borderRadius: '4px',
                                                         fontFamily: 'monospace',
                                                         color: 'white',
+                                                        padding: '12px 48px',
+                                                        fontSize: '16px',
+                                                        fontWeight: '600',
+                                                        textTransform: 'uppercase',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                                        transition: 'all 0.3s ease',
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.background = '#333';
+                                                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.background = 'black';
+                                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
                                                     }}
                                                 // disabled={selectedProducts.length === 0}
                                                 >
-                                                    Đặt hàng
+                                                    ĐẶT HÀNG
                                                 </Button>
                                             </Box>
                                         </Form>

@@ -11,7 +11,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Category, CategorySchema } from './schema/category.shema';
 import { UserModule } from 'src/user/user.module';
 import { CheckPermissionMiddleware } from 'src/middlewares/checkPermission.middleware';
-import { ProductModule } from '../product/product.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { ProductModule } from '../product/product.module';
       { name: Category.name, schema: CategorySchema },
     ]),
     UserModule,
-    ProductModule,
   ],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],

@@ -44,42 +44,16 @@ export class ProductRepository {
   }
 
   async getProductsByCategoryId(categoryId: string) {
-    // Hỗ trợ cả ObjectId và string
-    try {
-      const categoryIdObject = new ObjectId(categoryId);
-      return await this.productModel.find({ 
-        $or: [
-          { categoryId: categoryId },
-          { categoryId: categoryIdObject },
-          { categoryId: categoryId.toString() }
-        ]
-      });
-    } catch (err) {
-      return await this.productModel.find({ categoryId: categoryId });
-    }
-  }
-
-  async countProductsByCategoryId(categoryId: string) {
-    // So sánh categoryId - hỗ trợ cả string và ObjectId
-    try {
-      // Thử so sánh với string trước (vì categoryId có thể được lưu dưới dạng string)
-      let count = await this.productModel.countDocuments({ categoryId: categoryId });
-      
-      // Nếu không tìm thấy, thử với ObjectId
-      if (count === 0) {
-        try {
-          const categoryIdObject = new ObjectId(categoryId);
-          count = await this.productModel.countDocuments({ categoryId: categoryIdObject });
-        } catch (err) {
-          // categoryId không phải ObjectId hợp lệ, giữ nguyên count = 0
-        }
-      }
-      
-      return count;
-    } catch (err) {
-      console.error('Error counting products by categoryId:', err);
-      return 0;
-    }
+    return await this.productModel.aggregate([
+      {
+        $lookup: {
+          from: 'types',
+          localField: 'categoryIdString',
+          foreignField: 'categoyrId',
+          as: 'type',
+        },
+      },
+    ]);
   }
 
   async updateImagesOfProduct(productId: string, urlFiles: string[]) {
@@ -110,27 +84,51 @@ export class ProductRepository {
     );
   }
 
-  async updateProductsCategoryId(oldCategoryId: string, newCategoryId: string) {
-    try {
-      // Hỗ trợ cả ObjectId và string
-      const oldCategoryIdObject = new ObjectId(oldCategoryId);
-      const result = await this.productModel.updateMany(
-        {
-          $or: [
-            { categoryId: oldCategoryId },
-            { categoryId: oldCategoryIdObject },
-            { categoryId: oldCategoryId.toString() }
-          ]
-        },
-        { $set: { categoryId: newCategoryId } }
-      );
-      return result;
-    } catch (err) {
-      // Nếu không phải ObjectId hợp lệ, chỉ update với string
-      return await this.productModel.updateMany(
-        { categoryId: oldCategoryId },
-        { $set: { categoryId: newCategoryId } }
-      );
-    }
+  async searchProducts(searchTerm: string) {
+    // Tìm kiếm trong MongoDB với regex (case-insensitive)
+    // Escape special regex characters
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedTerm, 'i'); // 'i' = case insensitive
+    
+    // Tạo regex không phân biệt dấu tiếng Việt
+    // Chuyển đổi các ký tự có dấu thành pattern có thể match cả có dấu và không dấu
+    const normalizeVietnamese = (text: string): string => {
+      const map: Record<string, string> = {
+        'a': '[aàáạảãâầấậẩẫăằắặẳẵ]',
+        'e': '[eèéẹẻẽêềếệểễ]',
+        'i': '[iìíịỉĩ]',
+        'o': '[oòóọỏõôồốộổỗơờớợởỡ]',
+        'u': '[uùúụủũưừứựửữ]',
+        'y': '[yỳýỵỷỹ]',
+        'd': '[dđ]',
+      };
+      
+      return text.split('').map(char => {
+        const lower = char.toLowerCase();
+        return map[lower] || char;
+      }).join('');
+    };
+    
+    // Tạo regex không phân biệt dấu
+    const normalizedPattern = normalizeVietnamese(escapedTerm);
+    const diacriticRegex = new RegExp(normalizedPattern, 'i');
+    
+    console.log('ProductRepository: Searching products with term:', searchTerm);
+    console.log('ProductRepository: Using diacritic-insensitive regex');
+    
+    const results = await this.productModel.find({
+      $or: [
+        { name: { $regex: diacriticRegex } },
+        { description: { $regex: diacriticRegex } },
+        { descriptionFull: { $regex: diacriticRegex } },
+        { material: { $regex: diacriticRegex } },
+        { brand: { $regex: diacriticRegex } },
+        { style: { $regex: diacriticRegex } },
+        { origin: { $regex: diacriticRegex } },
+      ],
+    });
+    
+    console.log('ProductRepository: Found products:', results.length);
+    return results;
   }
 }

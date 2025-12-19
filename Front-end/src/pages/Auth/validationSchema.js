@@ -7,8 +7,15 @@ export const passwordSchema = Yup.string()
         "Password must be 6 - 14 characters and has numeric characters"
     );
 
+// Schema cho đăng nhập - username có thể là email hoặc displayName
 export const usernameSchema = Yup.string()
     .required("Required")
+    .min(4, "Must be 4 characters or more");
+
+// Schema cho đăng ký - username phải là email
+export const emailSchema = Yup.string()
+    .required("Required")
+    .email("Must be a valid email")
     .min(4, "Must be 4 characters or more");
 
 export const notJustNumber = Yup.string()
@@ -21,7 +28,7 @@ export const loginSchema = Yup.object().shape({
 });
 
 export const registerSchema = Yup.object().shape({
-    username: usernameSchema,
+    username: emailSchema,
     displayName: notJustNumber,
     password: passwordSchema,
 });

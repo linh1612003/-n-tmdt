@@ -7,12 +7,9 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { OrderRepository } from '../repository/order.repository';
-import { ObjectId } from 'mongodb';
 import { CreateOrderDto } from '../dto/CreateOrder.dto';
 import { CartService } from './../../cart/service/cart.service';
 import { PaymentService } from './../../payment/payment.service';
-import { NotificationService } from './../../notification/service/notification.service';
-import { ProductRepository } from 'src/product/repository/product.repository';
 
 @Injectable()
 export class OrderService {
@@ -21,8 +18,6 @@ export class OrderService {
     private readonly paymentService: PaymentService,
     private orderRepository: OrderRepository,
     private cartService: CartService,
-    private notificationService: NotificationService,
-    private productRepository: ProductRepository,
   ) { }
 
   async getAllOrders() {
@@ -30,64 +25,92 @@ export class OrderService {
   }
 
   async getOrderUser(userId) {
-    const userIdObjectId = new ObjectId(userId);
+    console.log('getOrderUser - userId received:', userId, 'type:', typeof userId);
+    
+    if (!userId) {
+      throw new HttpException('UserId is required', HttpStatus.BAD_REQUEST);
+    }
+    
+    // Normalize userId: đảm bảo là string và trim
+    const normalizedUserId = String(userId).trim();
+    
+    // Validate userId format (MongoDB ObjectId có 24 ký tự hex)
+    if (!/^[0-9a-fA-F]{24}$/.test(normalizedUserId)) {
+      console.error('getOrderUser - Invalid userId format:', normalizedUserId);
+      throw new HttpException('Invalid userId format', HttpStatus.BAD_REQUEST);
+    }
+    
+    // Sử dụng Types.ObjectId từ mongoose
+    let userIdObjectId: Types.ObjectId;
+    try {
+      userIdObjectId = new Types.ObjectId(normalizedUserId);
+    } catch (error) {
+      console.error('getOrderUser - Error creating ObjectId:', error);
+      throw new HttpException('Invalid userId format', HttpStatus.BAD_REQUEST);
+    }
+    
+    console.log('getOrderUser - converted ObjectId:', userIdObjectId.toString());
+    console.log('getOrderUser - requesting orders for userId:', normalizedUserId);
+    
+    // Repository sẽ query và filter
     const orderUser = await this.orderRepository.findOrderUser(userIdObjectId);
-    return orderUser;
+    console.log('getOrderUser - orders found from repository:', orderUser?.length || 0);
+    
+    // Final filter: Đảm bảo 100% chỉ trả về orders của user này
+    const targetUserIdStr = normalizedUserId.toLowerCase().trim();
+    const finalFilteredOrders = (orderUser || []).filter(order => {
+      if (!order || !order.userId) {
+        console.warn('getOrderUser - Order missing userId:', order?._id?.toString());
+        return false;
+      }
+      
+      // Normalize cả hai để so sánh
+      const orderUserIdStr = String(order.userId).trim().toLowerCase();
+      const matches = orderUserIdStr === targetUserIdStr;
+      
+      if (!matches) {
+        console.error('getOrderUser - SECURITY WARNING: Order userId mismatch!', {
+          orderId: order._id?.toString(),
+          orderUserId: String(order.userId),
+          targetUserId: normalizedUserId,
+          orderUserIdNormalized: orderUserIdStr,
+          targetUserIdNormalized: targetUserIdStr
+        });
+      }
+      
+      return matches;
+    });
+    
+    console.log('getOrderUser - final filtered orders:', finalFilteredOrders.length);
+    
+    if (orderUser.length !== finalFilteredOrders.length) {
+      console.error('getOrderUser - WARNING: Some orders were filtered out in service!', {
+        original: orderUser.length,
+        filtered: finalFilteredOrders.length,
+        filteredOut: orderUser.length - finalFilteredOrders.length
+      });
+    }
+    
+    // Log một vài đơn hàng cuối cùng để verify
+    if (finalFilteredOrders.length > 0) {
+      console.log('getOrderUser - Sample final orders userIds:');
+      finalFilteredOrders.slice(0, 3).forEach((order, index) => {
+        console.log(`  Final Order ${index + 1} userId:`, String(order.userId));
+      });
+    }
+    
+    return finalFilteredOrders;
   }
 
   async createOrder(createOrderDto: CreateOrderDto) {
-    console.log('Creating order with data:', JSON.stringify(createOrderDto, null, 2));
-    
     let totalAmount = 0;
     let productIds = [];
-    
-    // Lấy thông tin product để lưu giá vốn và giá bán tại thời điểm đặt hàng
-    const productsWithPrices = await Promise.all(
-      createOrderDto.products.map(async (product) => {
-        try {
-          const productInfo = await this.productRepository.findById(
-            product.productId.toString()
-          );
-          
-          if (!productInfo) {
-            console.error(`Product not found: ${product.productId}`);
-            throw new HttpException(
-              `Sản phẩm với ID ${product.productId} không tồn tại`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          
-          totalAmount += product.quantity * product.price;
-          productIds.push(product.productId);
-          
-          // Thêm importPrice vào product order
-          return {
-            ...product,
-            importPrice: productInfo.importPrice || 0,
-          };
-        } catch (err) {
-          console.error('Error processing product:', err);
-          if (err instanceof HttpException) {
-            throw err;
-          }
-          throw new HttpException(
-            `Lỗi khi xử lý sản phẩm ${product.productId}: ${err.message}`,
-            HttpStatus.BAD_REQUEST,
-          );
-        }
-      })
-    );
-    
+    createOrderDto.products.forEach((product) => {
+      totalAmount += product.quantity * product.price;
+      productIds.push(product.productId);
+    });
     const userIdObject = new Types.ObjectId(createOrderDto.userId);
-    const newOrder = { 
-      ...createOrderDto, 
-      products: productsWithPrices,
-      userId: userIdObject, 
-      totalAmount 
-    };
-    
-    console.log('Order data to save:', JSON.stringify(newOrder, null, 2));
-    
+    const newOrder = { ...createOrderDto, userId: userIdObject, totalAmount };
     try {
       if (createOrderDto.isInCart) {
         await this.cartService.deleteCartByProductIdsAndUserId(
@@ -97,35 +120,14 @@ export class OrderService {
       }
 
       const orderExist = await this.orderRepository.create(newOrder);
-      
-      // Tạo thông báo cho admin về đơn hàng mới
-      try {
-        await this.notificationService.createNewOrderNotification(
-          orderExist._id.toString(),
-          {
-            receiver: createOrderDto.shippingInfo?.receiver,
-            totalAmount: totalAmount,
-          },
-        );
-      } catch (error) {
-        console.error('Error creating notification:', error);
-        // Không throw error để không ảnh hưởng đến việc tạo order
-      }
-      
-      console.log('Order created successfully:', orderExist._id);
       return {
         mesage: 'create order successfully',
         orderExist,
       };
     } catch (err) {
-      console.error('Error creating order:', err);
-      if (err instanceof HttpException) {
-        throw err;
-      }
-      throw new HttpException(
-        err.message || 'Create order error',
-        HttpStatus.BAD_REQUEST,
-      );
+      console.error('Create order error:', err);
+      const errorMessage = err.message || 'Create order error';
+      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -250,7 +252,7 @@ export class OrderService {
       );
     }
   }
-  async hasUserBoughtProduct(userId: ObjectId, productId: string) {
+  async hasUserBoughtProduct(userId: Types.ObjectId, productId: string) {
     const data = { userId, productId, status: 'success' };
     const orderExist = await this.orderRepository.findOrderSuccess(data);
     return orderExist;
@@ -277,17 +279,5 @@ export class OrderService {
 
   async getTotalRevenue() {
     return await this.orderRepository.getTotalRevenue();
-  }
-
-  async getTotalCost() {
-    return await this.orderRepository.getTotalCost();
-  }
-
-  async getRevenueAndProfit() {
-    return await this.orderRepository.getRevenueAndProfit();
-  }
-
-  async getRevenueAndProfitByDateRange(startDate: Date, endDate: Date) {
-    return await this.orderRepository.getRevenueAndProfitByDateRange(startDate, endDate);
   }
 }

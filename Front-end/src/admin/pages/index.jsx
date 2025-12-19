@@ -6,7 +6,6 @@ import { IconButton, Menu as MaterialMenu, MenuItem } from '@material-ui/core';
 import { AccountCircle } from '@material-ui/icons';
 import { logout } from '../../pages/Auth/userSlice';
 import { useDispatch } from 'react-redux';
-import NotificationBell from '../components/NotificationBell';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -45,16 +44,16 @@ const AdminPage = () => {
                     selectedKeys={[selectedKey]}
                     onClick={({ key }) => setSelectedKey(key)}
                 >
-                    <Menu.Item
-                        key='/admin'
+                    {/* <Menu.Item
+                        key='/admin/dashboard'
                         style={
-                            selectedKey === '/admin' || selectedKey === '/admin/' || selectedKey === '/admin/dashboard'
+                            selectedKey === '/admin/dashboard'
                                 ? { background: 'black', color: 'white' }
                                 : {}
                         }
                     >
-                        <Link to='/admin'>Thống kê</Link>
-                    </Menu.Item>
+                        <Link to='/admin/dashboard'>Doanh thu bán hàng</Link>
+                    </Menu.Item> */}
                     <Menu.Item
                         key='/admin/products'
                         style={
@@ -76,16 +75,6 @@ const AdminPage = () => {
                         <Link to='/admin/menu'>Quản lý menu</Link>
                     </Menu.Item> */}
                     <Menu.Item
-                        key='/admin/categories'
-                        style={
-                            selectedKey === '/admin/categories'
-                                ? { background: 'black', color: 'white' }
-                                : {}
-                        }
-                    >
-                        <Link to='/admin/categories'>Quản lý danh mục</Link>
-                    </Menu.Item>
-                    <Menu.Item
                         key='/admin/orders'
                         style={
                             selectedKey === '/admin/orders'
@@ -95,11 +84,21 @@ const AdminPage = () => {
                     >
                         <Link to='/admin/orders'>Quản lý đơn hàng</Link>
                     </Menu.Item>
+                    <Menu.Item
+                        key='/admin/chat'
+                        style={
+                            selectedKey === '/admin/chat'
+                                ? { background: 'black', color: 'white' }
+                                : {}
+                        }
+                    >
+                        <Link to='/admin/chat'>Tin nhắn</Link>
+                    </Menu.Item>
                     {/* Thêm các item khác nếu cần */}
                 </Menu>
             </Sider>
-            <Layout style={{ width: '', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <Header style={{ background: '#fff', padding: 0, flexShrink: 0 }}>
+            <Layout style={{ width: '' }}>
+                <Header style={{ background: '#fff', padding: 0 }}>
                     <div
                         style={{
                             padding: '0 16px',
@@ -127,33 +126,19 @@ const AdminPage = () => {
                         >
                             <h1 style={{ fontFamily: 'monospace', margin: 0 }}>Admin </h1>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <NotificationBell />
-                            <IconButton
-                                color='inherit'
-                                onClick={handleUserClick}
-                            >
-                                <AccountCircle />
-                            </IconButton>
-                        </div>
+                        <IconButton
+                            color='inherit'
+                            onClick={handleUserClick}
+                        >
+                            <AccountCircle />
+                        </IconButton>
                     </div>
                 </Header>
 
-                <Content style={{ 
-                    margin: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 0 : '0 16px', 
-                    padding: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 0 : 24, 
-                    minHeight: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 0 : 280, 
-                    height: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? '100%' : 'auto',
-                    flex: 1,
-                    overflow: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 'hidden' : 'auto',
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}>
+                <Content style={{ margin: '0 16px', padding: 24, minHeight: 280 }}>
                     <Outlet />
                 </Content>
-                {location.pathname !== '/admin' && location.pathname !== '/admin/' && location.pathname !== '/admin/dashboard' && (
-                    <Footer style={{ textAlign: 'center', flexShrink: 0 }}>Admin  ©2024</Footer>
-                )}
+                <Footer style={{ textAlign: 'center' }}>Admin  ©2024</Footer>
             </Layout>
             <MaterialMenu
                 anchorEl={anchorEl}

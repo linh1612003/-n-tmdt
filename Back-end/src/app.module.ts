@@ -12,8 +12,7 @@ import { CartModule } from './cart/cart.module';
 import { MenuModule } from './menu/menu.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
-import { NotificationModule } from './notification/notification.module';
-import { AdminModule } from './admin/admin.module';
+import { ChatModule } from './chat/chat.module';
 
 require('dotenv').config();
 
@@ -23,14 +22,26 @@ require('dotenv').config();
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'uploads', 'products'),
       serveRoot: '/api/uploads/products',
+      serveStaticOptions: {
+        index: false,
+        fallthrough: true,
+      },
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'uploads', 'avatars'),
       serveRoot: '/api/uploads/avatars',
+      serveStaticOptions: {
+        index: false,
+        fallthrough: true,
+      },
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'uploads', 'types'),
       serveRoot: '/api/uploads/types',
+      serveStaticOptions: {
+        index: false,
+        fallthrough: true,
+      },
     }),
     AuthModule,
     UserModule,
@@ -42,8 +53,7 @@ require('dotenv').config();
     MenuModule,
     OrderModule,
     ReviewModule,
-    NotificationModule,
-    AdminModule,
+    ChatModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

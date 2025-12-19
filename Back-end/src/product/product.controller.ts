@@ -9,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { CreateProductDto } from 'src/product/dto/CreateProduct.dto';
-import { UpdateProductDto } from 'src/product/dto/UpdateProduct.dto';
 import { ProductService } from 'src/product/service/product.service';
 
 @Controller('products')
@@ -54,10 +53,8 @@ export class ProductController {
   @Put(':productId')
   async updateProductById(
     @Param('productId') productId: string,
-    @Body() updateProductDto: UpdateProductDto,
+    @Body() updateProductDto: CreateProductDto,
   ) {
-    console.log('Received update product request for ID:', productId);
-    console.log('Update data:', JSON.stringify(updateProductDto, null, 2));
     return this.productService.updateProductById(productId, updateProductDto);
   }
 }

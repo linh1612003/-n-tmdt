@@ -20,20 +20,13 @@ const orderApi = {
     },
     updateShippingInfo(userId,payload){
         const url = `api/users/${userId}/shipping-infor`; 
-        return axiosClient.put(url, { payload });
+        console.log('orderApi.updateShippingInfo - URL:', url);
+        console.log('orderApi.updateShippingInfo - payload:', JSON.stringify(payload, null, 2));
+        return axiosClient.put(url, payload);
     },
       getOrderHistory(userId){
         const url =`http://localhost:5000/api/orders/${userId}/user`
         return axiosClient.get(url);
-      },
-      getRevenueAndProfit(startDate, endDate) {
-        const url = '/api/orders/revenue-profit';
-        const params = {};
-        if (startDate && endDate) {
-            params.startDate = startDate;
-            params.endDate = endDate;
-        }
-        return axiosClient.get(url, { params });
       }
 }
 

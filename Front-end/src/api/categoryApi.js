@@ -17,17 +17,17 @@ const categoryApi = {
     },
 
     add(data){
-        const url = '/api/categories';
+        const url = '/categories';
         return axiosClient.post(url,data)
     },
 
-    update(id, data){
-        const url = `/api/categories/${id}`;
-        return axiosClient.put(url,data)
+    update(data){
+        const url = `/categories/${data.id}`;
+        return axiosClient.patch(url,data)
     },
     
     remove(id){
-        const url = `/api/categories/${id}`;
+        const url = `/categories/${id}`;
         return axiosClient.delete(url)
     }
 }

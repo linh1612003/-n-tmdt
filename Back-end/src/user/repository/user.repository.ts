@@ -9,22 +9,46 @@ export class UserRepository {
   constructor(
     @InjectModel(User.name)
     private UserModel: Model<User>,
-  ) {}
+  ) { }
 
   async findById(userId: string) {
     return await this.UserModel.findById(userId);
   }
 
   async updateShippingInfo(userId: string, data: any) {
-    return await this.UserModel.findByIdAndUpdate(
+    console.log('updateShippingInfo - userId:', userId);
+    console.log('updateShippingInfo - data:', data);
+    const updateData: any = {};
+
+    // Luôn cập nhật các trường này nếu có trong data (kể cả chuỗi rỗng)
+    if (data.contactPhone !== undefined && data.contactPhone !== null) {
+      updateData.contactPhone = data.contactPhone;
+    }
+    if (data.address !== undefined && data.address !== null) {
+      updateData.address = data.address;
+    }
+    if (data.addressDetail !== undefined && data.addressDetail !== null) {
+      updateData.addressDetail = data.addressDetail;
+    }
+
+    console.log('updateShippingInfo - updateData:', updateData);
+
+    if (Object.keys(updateData).length === 0) {
+      console.log('updateShippingInfo - No data to update');
+      return await this.UserModel.findById(userId);
+    }
+
+    const result = await this.UserModel.findByIdAndUpdate(
       userId,
-      {
-        contactPhone: data.contactPhone,
-        address: data.address,
-        addressDetail: data.addressDetail,
-      },
-      { new: true },
+      { $set: updateData },
+      { new: true, runValidators: true },
     );
+
+    console.log('updateShippingInfo - result after update:', result);
+    console.log('updateShippingInfo - result.address:', result?.address);
+    console.log('updateShippingInfo - result.addressDetail:', result?.addressDetail);
+
+    return result;
   }
 
   async findUserToUpdate(userId: string): Promise<User> {

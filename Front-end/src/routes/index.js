@@ -1,10 +1,10 @@
 import { LoginPage } from "../../src/pages/Auth/LoginPage/index";
+import { ForgotPasswordPage } from "../../src/pages/Auth/ForgotPassword/index";
 import AdminPage from "../admin/pages";
+import Dashboard from "../admin/pages/Dashboard";
 import MenuManagement from "../admin/pages/Menu/MenuManagement";
 import OrderManagement from "../admin/pages/Order/OrderManagement";
 import ProductManagement from "../admin/pages/Product/ProductManagement";
-import CategoryManagement from "../admin/pages/Category/CategoryManagement";
-import AdminDashboard from "../admin/pages/Dashboard";
 import AboutCompany from "../pages/AboutCompany";
 import AccountInfo from "../pages/AccountInfo";
 import Account from "../pages/AccountInfo/components/Account";
@@ -26,6 +26,8 @@ import SuggestedProducts from "../pages/Product/components/SuggestedProducts ";
 import DetailPage from "../pages/Product/pages/DetailPage";
 import Test from "../pages/Test/Test";
 import VnpayCallback from "../pages/Order/components/VnpayCallback";
+import UserChat from "../pages/Chat/UserChat";
+import AdminChat from "../admin/pages/Chat/AdminChat";
 
 export const routes = [
     { 
@@ -41,12 +43,8 @@ export const routes = [
         isPrivate: true,
         children: [
             {
-              path: '',
-              page: AdminDashboard,
-            },
-            {
               path: 'dashboard',
-              page: AdminDashboard,
+              page: Dashboard,
             },
             {
               path: 'products',
@@ -57,12 +55,12 @@ export const routes = [
               page: MenuManagement,
             },
             {
-              path: 'categories',
-              page: CategoryManagement,
-            },
-            {
               path: 'orders',
               page: OrderManagement,
+            },
+            {
+              path: 'chat',
+              page: AdminChat,
             },
           ],
     },
@@ -70,6 +68,13 @@ export const routes = [
         path:'/login',
         exact: true,
         page : LoginPage,
+        isShowHeader : false,
+        isShowFooter : false,
+    },
+    { 
+        path:'/forgotPassword',
+        exact: true,
+        page : ForgotPasswordPage,
         isShowHeader : false,
         isShowFooter : false,
     },
@@ -173,6 +178,12 @@ export const routes = [
         page : VnpayCallback,
         isShowHeader : false,
         isShowFooter : false,
+    },
+    { 
+        path:'/chat',
+        page : UserChat,
+        isShowHeader : true,
+        isShowFooter : true,
     },
     { 
         path:'*',
