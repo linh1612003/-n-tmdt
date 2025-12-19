@@ -4,7 +4,7 @@ import MenuManagement from "../admin/pages/Menu/MenuManagement";
 import OrderManagement from "../admin/pages/Order/OrderManagement";
 import ProductManagement from "../admin/pages/Product/ProductManagement";
 import CategoryManagement from "../admin/pages/Category/CategoryManagement";
-import PowerBIPage from "../admin/pages/PowerBI";
+import AdminDashboard from "../admin/pages/Dashboard";
 import AboutCompany from "../pages/AboutCompany";
 import AccountInfo from "../pages/AccountInfo";
 import Account from "../pages/AccountInfo/components/Account";
@@ -42,7 +42,11 @@ export const routes = [
         children: [
             {
               path: '',
-              page: PowerBIPage,
+              page: AdminDashboard,
+            },
+            {
+              path: 'dashboard',
+              page: AdminDashboard,
             },
             {
               path: 'products',
@@ -59,10 +63,6 @@ export const routes = [
             {
               path: 'orders',
               page: OrderManagement,
-            },
-            {
-              path: 'powerbi',
-              page: PowerBIPage,
             },
           ],
     },

@@ -46,6 +46,16 @@ const AdminPage = () => {
                     onClick={({ key }) => setSelectedKey(key)}
                 >
                     <Menu.Item
+                        key='/admin'
+                        style={
+                            selectedKey === '/admin' || selectedKey === '/admin/' || selectedKey === '/admin/dashboard'
+                                ? { background: 'black', color: 'white' }
+                                : {}
+                        }
+                    >
+                        <Link to='/admin'>Thống kê</Link>
+                    </Menu.Item>
+                    <Menu.Item
                         key='/admin/products'
                         style={
                             selectedKey === '/admin/products'
@@ -84,16 +94,6 @@ const AdminPage = () => {
                         }
                     >
                         <Link to='/admin/orders'>Quản lý đơn hàng</Link>
-                    </Menu.Item>
-                    <Menu.Item
-                        key='/admin'
-                        style={
-                            selectedKey === '/admin' || selectedKey === '/admin/'
-                                ? { background: 'black', color: 'white' }
-                                : {}
-                        }
-                    >
-                        <Link to='/admin'>Thống kê</Link>
                     </Menu.Item>
                     {/* Thêm các item khác nếu cần */}
                 </Menu>
@@ -140,18 +140,18 @@ const AdminPage = () => {
                 </Header>
 
                 <Content style={{ 
-                    margin: location.pathname === '/admin' || location.pathname === '/admin/' ? 0 : '0 16px', 
-                    padding: location.pathname === '/admin' || location.pathname === '/admin/' ? 0 : 24, 
-                    minHeight: location.pathname === '/admin' || location.pathname === '/admin/' ? 0 : 280, 
-                    height: location.pathname === '/admin' || location.pathname === '/admin/' ? '100%' : 'auto',
+                    margin: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 0 : '0 16px', 
+                    padding: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 0 : 24, 
+                    minHeight: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 0 : 280, 
+                    height: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? '100%' : 'auto',
                     flex: 1,
-                    overflow: 'hidden',
+                    overflow: location.pathname === '/admin' || location.pathname === '/admin/' || location.pathname === '/admin/dashboard' ? 'hidden' : 'auto',
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
                     <Outlet />
                 </Content>
-                {location.pathname !== '/admin' && location.pathname !== '/admin/' && (
+                {location.pathname !== '/admin' && location.pathname !== '/admin/' && location.pathname !== '/admin/dashboard' && (
                     <Footer style={{ textAlign: 'center', flexShrink: 0 }}>Admin  ©2024</Footer>
                 )}
             </Layout>
