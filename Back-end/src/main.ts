@@ -12,7 +12,14 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization, token',
   });
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    transform: true, // Tự động transform types (string -> number, etc.)
+    transformOptions: {
+      enableImplicitConversion: true, // Cho phép implicit conversion
+    },
+    forbidNonWhitelisted: true, // Từ chối các field không có trong DTO
+  }));
   app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(5000);
 }

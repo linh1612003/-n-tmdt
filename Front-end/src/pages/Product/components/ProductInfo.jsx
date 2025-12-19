@@ -342,9 +342,8 @@ function ProductInfo({ product = {} }) {
                 phone: shippingFormData.phone,
                 address: shippingFormData.address,
                 addressDetail: shippingFormData.addressDetail,
-                isInCart: false
             };
-            const payloadPay = { userId, products, shippingInfo: newShippingInfo };
+            const payloadPay = { userId, products, shippingInfo: newShippingInfo, isInCart: false };
 
             const req = await orderApi.add(payloadPay);
             navigate(`/orders?id=${req.orderExist._id}`);

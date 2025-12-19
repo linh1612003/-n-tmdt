@@ -28,9 +28,6 @@ let AuthController = class AuthController {
         this.authService = authService;
         this.jwtService = jwtService;
     }
-    getUserById(userId) {
-        return this.authService.getUserById(userId);
-    }
     register(registerUserDto) {
         return this.authService.register(registerUserDto);
     }
@@ -67,15 +64,11 @@ let AuthController = class AuthController {
     resetPassword(resetPasswordDto) {
         return this.authService.resetPassword(resetPasswordDto);
     }
+    getUserById(userId) {
+        return this.authService.getUserById(userId);
+    }
 };
 exports.AuthController = AuthController;
-__decorate([
-    (0, common_1.Get)(':userId'),
-    __param(0, (0, common_1.Param)('userId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "getUserById", null);
 __decorate([
     (0, common_1.Post)('register'),
     __param(0, (0, common_1.Body)()),
@@ -159,6 +152,13 @@ __decorate([
     __metadata("design:paramtypes", [reset_password_dto_1.ResetPasswordDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "resetPassword", null);
+__decorate([
+    (0, common_1.Get)(':userId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "getUserById", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService,

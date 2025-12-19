@@ -68,8 +68,19 @@ export class AuthRepository {
   }
 
   async findByUserName(username: string) {
+    // Tìm kiếm case-insensitive để tránh lỗi do chữ hoa/thường
+    // Escape các ký tự đặc biệt trong regex
+    const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return await this.UserModel.findOne({
-      username: username,
+      username: { $regex: new RegExp(`^${escapedUsername}$`, 'i') },
+    }).lean();
+  }
+
+  async findAllUsersContainingEmail(email: string) {
+    // Tìm tất cả users có username chứa email (để debug)
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return await this.UserModel.find({
+      username: { $regex: new RegExp(escapedEmail, 'i') },
     }).lean();
   }
 

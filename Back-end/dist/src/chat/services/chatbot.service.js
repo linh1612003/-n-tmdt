@@ -299,15 +299,11 @@ let ChatbotService = class ChatbotService {
             }
             const displayProducts = matchedProducts.slice(0, 5);
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-            const productList = displayProducts.map((p, index) => {
-                const productUrl = `${frontendUrl}/products/${p._id}`;
-                return `${index + 1}. ${p.name} - ${p.salePrice?.toLocaleString('vi-VN')}đ\n   🔗 ${productUrl}`;
-            }).join('\n\n');
             const moreText = matchedProducts.length > 5
-                ? `\n\nVà còn ${matchedProducts.length - 5} sản phẩm khác...`
+                ? `\n\n📦 Và còn ${matchedProducts.length - 5} sản phẩm khác...`
                 : '';
             return {
-                content: `Em tìm thấy ${matchedProducts.length} sản phẩm phù hợp:\n\n${productList}${moreText}\n\nAnh/chị có thể click vào link để xem chi tiết hoặc hỏi em về giá, tồn kho của sản phẩm cụ thể.`,
+                content: `🎉 Em tìm thấy ${matchedProducts.length} sản phẩm phù hợp cho anh/chị:${moreText}`,
                 quickReplies: [
                     { title: 'Xem tất cả sản phẩm', payload: 'VIEW_PRODUCTS' },
                     { title: 'Hỏi về giá', payload: 'PRODUCT_PRICE' },
@@ -320,6 +316,8 @@ let ChatbotService = class ChatbotService {
                         productId: p._id.toString(),
                         url: `${frontendUrl}/products/${p._id}`,
                         name: p.name,
+                        price: p.salePrice,
+                        image: p.images && p.images.length > 0 ? p.images[0] : null,
                     })),
                 },
             };

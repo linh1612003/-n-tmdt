@@ -16,6 +16,14 @@ export declare class Message {
         orderId?: string;
         productId?: string;
         handoffRequested?: boolean;
+        productUrl?: string;
+        productLinks?: Array<{
+            productId: string;
+            url: string;
+            name: string;
+            price?: number;
+            image?: string;
+        }>;
     };
 }
 export declare const MessageSchema: import("mongoose").Schema<Message, import("mongoose").Model<Message, any, any, any, import("mongoose").Document<unknown, any, Message> & Message & Required<{

@@ -233,12 +233,12 @@ function CartPages(props) {
                 ]);
 
                 setCartList(cartList);
-                // Map dữ liệu từ userData vào formData
+                // Map dữ liệu từ userData vào formData (đảm bảo tên field khớp với form)
                 setFormData({
-                    receiver: userData.displayName || '',
-                    phone: userData.contactPhone || '',
-                    address: userData.address || '',
-                    addressDetail: userData.addressDetail || '',
+                    receiver: String(userData.displayName || '').trim(),
+                    phone: String(userData.contactPhone || '').trim(),
+                    address: String(userData.address || '').trim(),
+                    addressDetail: String(userData.addressDetail || '').trim(),
                     isInCart: true,
                 });
             } catch (error) {
@@ -265,29 +265,61 @@ function CartPages(props) {
     });
 
     const handleBuyNow = async (values) => {
+        // Đảm bảo các giá trị là string và không rỗng
         const shippingInfo = {
-            receiver: values.displayName,
-            phone: values.contactPhone,
-            address: values.address,
-            addressDetail: values.addressDetail,
-            isInCart: true,
+            receiver: String(values.receiver || '').trim(),
+            phone: String(values.phone || '').trim(),
+            address: String(values.address || '').trim(),
+            addressDetail: String(values.addressDetail || '').trim(),
         };
+
+        // Validate shippingInfo trước khi gửi
+        console.log('[Cart] Form values:', values);
+        console.log('[Cart] ShippingInfo:', shippingInfo);
+
+        if (!shippingInfo.receiver || !shippingInfo.phone || !shippingInfo.address || !shippingInfo.addressDetail) {
+            console.error('[Cart] Missing shipping info:', {
+                receiver: !shippingInfo.receiver,
+                phone: !shippingInfo.phone,
+                address: !shippingInfo.address,
+                addressDetail: !shippingInfo.addressDetail,
+            });
+            enqueueSnackbar('Vui lòng điền đầy đủ thông tin vận chuyển!', {
+                variant: 'warning',
+            });
+            return;
+        }
 
         const updatedProducts = selectedProducts.map((selectedProduct) => {
             const cartItem = cartList.find((item) =>
                 item.product.some((product) => product._id === selectedProduct._id),
             );
+            if (!cartItem) {
+                console.error('[Cart] CartItem not found for product:', selectedProduct._id);
+                return null;
+            }
             return {
-                productId: selectedProduct._id,
-                price: selectedProduct.salePrice,
-                quantity: cartItem.quantity, // Cập nhật số lượng từ cartList
-                urlImage: selectedProduct.images[0],
+                productId: String(selectedProduct._id), // Đảm bảo là string
+                price: Number(selectedProduct.salePrice) || 0, // Đảm bảo là number
+                quantity: Number(cartItem.quantity) || 1, // Đảm bảo là number
+                urlImage: selectedProduct.images?.[0] || selectedProduct.images?.[0] || '',
             };
-        });
+        }).filter(Boolean); // Loại bỏ null values
 
-        const payloadPay = { userId, products: updatedProducts, shippingInfo };
+        // Kiểm tra products sau khi filter
+        if (updatedProducts.length === 0) {
+            enqueueSnackbar('Không có sản phẩm hợp lệ để thanh toán!', {
+                variant: 'warning',
+            });
+            return;
+        }
+
+        const payloadPay = { userId, products: updatedProducts, shippingInfo, isInCart: true };
 
         if (!userId) {
+            enqueueSnackbar('Vui lòng đăng nhập để thanh toán!', {
+                variant: 'warning',
+            });
             return;
         }
         if (selectedProducts.length === 0) {
@@ -297,10 +329,14 @@ function CartPages(props) {
             return;
         }
         try {
+            console.log('[Cart] Payload to send:', JSON.stringify(payloadPay, null, 2));
             const req = await orderApi.add(payloadPay);
             navigate(`/orders?id=${req.orderExist._id}`);
         } catch (error) {
-            enqueueSnackbar('Đã xảy ra lỗi! Vui lòng thử lại sau.', { variant: 'error' });
+            console.error('[Cart] Error creating order:', error);
+            const errorMessage = error?.response?.data?.message || error?.message || 'Đã xảy ra lỗi! Vui lòng thử lại sau.';
+            console.error('[Cart] Error message:', errorMessage);
+            enqueueSnackbar(errorMessage, { variant: 'error' });
         }
     };
 
@@ -341,8 +377,8 @@ function CartPages(props) {
                                 <Typography
                                     component='h1'
                                     variant='h5'
-                                    style={{ 
-                                        fontFamily: 'monospace', 
+                                    style={{
+                                        fontFamily: 'monospace',
                                         marginBottom: '24px',
                                         fontWeight: 'bold',
                                         color: '#222'
@@ -472,7 +508,7 @@ function CartPages(props) {
                             {cartList.map((cartItem) => (
                                 <Box key={cartItem._id}>
                                     {cartItem.product.map((productItem, index) => (
-                                        <Box style={{ display: 'flex' }}>
+                                        <Box key={`${cartItem._id}-${productItem._id}-${index}`} style={{ display: 'flex' }}>
                                             <Box
                                                 style={{
                                                     display: 'flex',

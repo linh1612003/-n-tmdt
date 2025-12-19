@@ -27,12 +27,9 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
-  @Get(':userId')
-  getUserById(@Param('userId') userId: string) {
-    return this.authService.getUserById(userId);
-  }
+  // Đặt các route cụ thể TRƯỚC route có parameter để tránh conflict
   @Post('register')
   register(@Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
@@ -98,5 +95,11 @@ export class AuthController {
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  // Đặt route có parameter XUỐNG CUỐI CÙNG để tránh conflict với các route cụ thể
+  @Get(':userId')
+  getUserById(@Param('userId') userId: string) {
+    return this.authService.getUserById(userId);
   }
 }

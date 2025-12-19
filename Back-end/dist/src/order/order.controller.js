@@ -45,10 +45,17 @@ let OrderController = class OrderController {
     }
     async CreateOrder(createOrderDto) {
         try {
+            console.log('[CreateOrder] Received payload:', JSON.stringify(createOrderDto, null, 2));
+            console.log('[CreateOrder] userId:', createOrderDto.userId);
+            console.log('[CreateOrder] products count:', createOrderDto.products?.length);
+            console.log('[CreateOrder] shippingInfo:', createOrderDto.shippingInfo);
+            console.log('[CreateOrder] isInCart:', createOrderDto.isInCart);
             return await this.orderService.createOrder(createOrderDto);
         }
         catch (error) {
             console.error('Error in CreateOrder controller:', error);
+            console.error('Error message:', error.message);
+            console.error('Error response:', error.response);
             throw error;
         }
     }

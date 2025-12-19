@@ -12,17 +12,6 @@ export declare class AuthController {
     private readonly authService;
     private jwtService;
     constructor(authService: AuthService, jwtService: JwtService);
-    getUserById(userId: string): Promise<{
-        userId: string;
-        type: string;
-        userName: string;
-        displayName: string;
-        avaUrl: string;
-        facebookId: string;
-        contactPhone: string;
-        address: string;
-        addressDetail: string;
-    }>;
     register(registerUserDto: RegisterUserDto): Promise<{
         message: string;
     }>;
@@ -49,5 +38,16 @@ export declare class AuthController {
     }>;
     resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{
         message: string;
+    }>;
+    getUserById(userId: string): Promise<{
+        userId: string;
+        type: string;
+        userName: string;
+        displayName: string;
+        avaUrl: string;
+        facebookId: string;
+        contactPhone: string;
+        address: string;
+        addressDetail: string;
     }>;
 }
