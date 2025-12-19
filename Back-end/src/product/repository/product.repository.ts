@@ -83,4 +83,52 @@ export class ProductRepository {
       },
     );
   }
+
+  async searchProducts(searchTerm: string) {
+    // Tìm kiếm trong MongoDB với regex (case-insensitive)
+    // Escape special regex characters
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escapedTerm, 'i'); // 'i' = case insensitive
+    
+    // Tạo regex không phân biệt dấu tiếng Việt
+    // Chuyển đổi các ký tự có dấu thành pattern có thể match cả có dấu và không dấu
+    const normalizeVietnamese = (text: string): string => {
+      const map: Record<string, string> = {
+        'a': '[aàáạảãâầấậẩẫăằắặẳẵ]',
+        'e': '[eèéẹẻẽêềếệểễ]',
+        'i': '[iìíịỉĩ]',
+        'o': '[oòóọỏõôồốộổỗơờớợởỡ]',
+        'u': '[uùúụủũưừứựửữ]',
+        'y': '[yỳýỵỷỹ]',
+        'd': '[dđ]',
+      };
+      
+      return text.split('').map(char => {
+        const lower = char.toLowerCase();
+        return map[lower] || char;
+      }).join('');
+    };
+    
+    // Tạo regex không phân biệt dấu
+    const normalizedPattern = normalizeVietnamese(escapedTerm);
+    const diacriticRegex = new RegExp(normalizedPattern, 'i');
+    
+    console.log('ProductRepository: Searching products with term:', searchTerm);
+    console.log('ProductRepository: Using diacritic-insensitive regex');
+    
+    const results = await this.productModel.find({
+      $or: [
+        { name: { $regex: diacriticRegex } },
+        { description: { $regex: diacriticRegex } },
+        { descriptionFull: { $regex: diacriticRegex } },
+        { material: { $regex: diacriticRegex } },
+        { brand: { $regex: diacriticRegex } },
+        { style: { $regex: diacriticRegex } },
+        { origin: { $regex: diacriticRegex } },
+      ],
+    });
+    
+    console.log('ProductRepository: Found products:', results.length);
+    return results;
+  }
 }

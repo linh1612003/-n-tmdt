@@ -23,7 +23,7 @@ import { CheckPermissionMiddleware } from 'src/middlewares/checkPermission.middl
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],
-  exports: [MongooseModule, UserRepository],
+  exports: [MongooseModule, UserRepository, UserService],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

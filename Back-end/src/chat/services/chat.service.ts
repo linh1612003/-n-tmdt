@@ -88,5 +88,46 @@ export class ChatService {
   async getUserById(userId: string) {
     return this.userModel.findById(userId).exec();
   }
+
+  async createChatbotMessage(
+    data: {
+      receiverId: string;
+      content: string;
+      quickReplies?: Array<{ title: string; payload: string }>;
+      metadata?: any;
+    },
+    senderId: string, // Admin ID (chatbot gửi từ admin account)
+  ) {
+    console.log('ChatService: Creating chatbot message', {
+      senderId,
+      receiverId: data.receiverId,
+      content: data.content,
+    });
+
+    const message = await this.chatRepository.createMessage({
+      senderId: new Types.ObjectId(senderId),
+      receiverId: new Types.ObjectId(data.receiverId),
+      content: data.content,
+      senderRole: 'chatbot', // Đánh dấu là tin nhắn từ chatbot
+      isRead: false,
+      quickReplies: data.quickReplies,
+      metadata: data.metadata,
+    });
+
+    console.log('ChatService: Chatbot message created, fetching all messages', {
+      messageId: message._id,
+    });
+
+    const allMessages = await this.chatRepository.getMessagesBetweenUsers(
+      senderId,
+      data.receiverId,
+    );
+
+    console.log('ChatService: Retrieved messages', {
+      messageCount: allMessages?.length || 0,
+    });
+
+    return allMessages;
+  }
 }
 

@@ -52,13 +52,22 @@ export class ChatRepository {
       .exec();
 
     // Transform messages: if sender is admin, replace displayName with "Admin"
+    // If sender is chatbot, replace displayName with "Chatbot"
     return messages.map((msg: any) => {
-      if (msg.senderId && msg.senderId.role === 'admin') {
+      if (msg.senderId) {
         const senderObj = msg.senderId.toObject ? msg.senderId.toObject() : msg.senderId;
-        msg.senderId = {
-          ...senderObj,
-          displayName: 'Admin',
-        };
+        if (msg.senderRole === 'chatbot') {
+          msg.senderId = {
+            ...senderObj,
+            displayName: 'Chatbot',
+            role: 'chatbot',
+          };
+        } else if (senderObj.role === 'admin') {
+          msg.senderId = {
+            ...senderObj,
+            displayName: 'Admin',
+          };
+        }
       }
       return msg;
     });

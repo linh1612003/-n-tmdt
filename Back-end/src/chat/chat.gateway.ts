@@ -11,8 +11,9 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable, UseGuards } from '@nestjs/common';
 import { ChatService } from './services/chat.service';
+import { ChatbotService } from './services/chatbot.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from '../auth/schemas/user.schema';
 
 @WebSocketGateway({
@@ -33,6 +34,7 @@ export class ChatGateway
 
   constructor(
     private readonly chatService: ChatService,
+    private readonly chatbotService: ChatbotService,
     private readonly jwtService: JwtService,
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
@@ -152,6 +154,7 @@ export class ChatGateway
       // Đảm bảo receiverId là string
       const receiverIdString = data.receiverId.toString();
       
+      // Lưu tin nhắn từ user
       const messages = await this.chatService.createMessage(
         {
           receiverId: receiverIdString,
@@ -174,7 +177,6 @@ export class ChatGateway
       client.emit('newMessage', messages);
 
       // Send to receiver if online
-      // receiverIdString đã được khai báo ở trên
       const receiverSocketId = this.connectedUsers.get(receiverIdString);
       
       console.log('ChatGateway: Looking for receiver', {
@@ -197,12 +199,128 @@ export class ChatGateway
         });
       }
 
+      // Nếu user gửi tin nhắn cho admin, chatbot tự động phản hồi
+      if (senderRole === 'member' || senderRole === 'user') {
+        try {
+          const receiver = await this.userModel.findById(receiverIdString);
+          if (receiver && receiver.role === 'admin') {
+            // Chờ một chút để user thấy tin nhắn của mình trước
+            setTimeout(async () => {
+              await this.handleChatbotResponse(senderId, data.content);
+            }, 500);
+          }
+        } catch (error) {
+          console.error('ChatGateway: Error checking receiver role:', error);
+        }
+      }
+
       return messages;
     } catch (error) {
       console.error('ChatGateway: Error sending message:', error);
       console.error('ChatGateway: Error stack:', error.stack);
       client.emit('error', { 
         message: 'Failed to send message',
+        error: error.message,
+      });
+    }
+  }
+
+  private async handleChatbotResponse(userId: string, userMessage: string) {
+    try {
+      console.log('ChatGateway: Processing chatbot response', { userId, userMessage });
+      
+      // Xử lý tin nhắn qua chatbot service
+      const chatbotResponse = await this.chatbotService.processMessage(userId, userMessage);
+      
+      if (!chatbotResponse) {
+        console.log('ChatGateway: No chatbot response');
+        return;
+      }
+
+      // Lấy admin ID
+      const adminInfo = await this.chatService.getAdminUser();
+      const adminId = adminInfo._id.toString();
+
+      // Tạo tin nhắn từ chatbot
+      const chatbotMessages = await this.chatService.createChatbotMessage(
+        {
+          receiverId: userId,
+          content: chatbotResponse.content,
+          quickReplies: chatbotResponse.quickReplies,
+          metadata: chatbotResponse.metadata,
+        },
+        adminId, // Chatbot gửi từ admin account
+      );
+
+      console.log('ChatGateway: Chatbot message created', {
+        messageCount: chatbotMessages?.length || 0,
+      });
+
+      // Gửi tin nhắn chatbot đến user
+      const userSocketId = this.connectedUsers.get(userId);
+      if (userSocketId) {
+        this.server.to(userSocketId).emit('newMessage', chatbotMessages);
+      }
+
+      // Thông báo cho admin nếu có handoff request
+      if (chatbotResponse.metadata?.handoffRequested) {
+        const adminSocketId = this.connectedUsers.get(adminId);
+        if (adminSocketId) {
+          this.server.to(adminSocketId).emit('handoffRequested', {
+            userId,
+            message: userMessage,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('ChatGateway: Error handling chatbot response:', error);
+    }
+  }
+
+  @SubscribeMessage('quickReply')
+  async handleQuickReply(
+    @MessageBody() data: { payload: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const senderId = client.data.userId;
+      const senderRole = client.data.userRole;
+
+      console.log('ChatGateway: Received quickReply', {
+        senderId,
+        senderRole,
+        payload: data.payload,
+      });
+
+      // Map payload thành nội dung tin nhắn
+      const payloadToMessage: Record<string, string> = {
+        'CHECK_ORDER': 'Kiểm tra đơn hàng',
+        'VIEW_PRODUCTS': 'Xem sản phẩm',
+        'RETURN_POLICY': 'Chính sách đổi trả',
+        'HANDOFF': 'Gặp nhân viên',
+        'ORDER_TRACKING': 'Theo dõi vận chuyển',
+        'CONTACT_SUPPORT': 'Liên hệ CSKH',
+        'WARRANTY_POLICY': 'Chính sách bảo hành',
+      };
+
+      const messageContent = payloadToMessage[data.payload] || data.payload;
+
+      // Xử lý quick reply như một tin nhắn bình thường
+      const adminInfo = await this.chatService.getAdminUser();
+      const adminId = adminInfo._id.toString();
+
+      // Gửi tin nhắn từ user
+      await this.handleMessage(
+        {
+          receiverId: adminId,
+          content: messageContent,
+        },
+        client,
+      );
+    } catch (error) {
+      console.error('ChatGateway: Error handling quick reply:', error);
+      client.emit('error', {
+        message: 'Failed to process quick reply',
         error: error.message,
       });
     }

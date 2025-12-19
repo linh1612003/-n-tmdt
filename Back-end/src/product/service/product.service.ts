@@ -86,6 +86,10 @@ export class ProductService {
   async getAllProducts() {
     return await this.productRepository.getAll();
   }
+
+  async searchProducts(searchTerm: string) {
+    return await this.productRepository.searchProducts(searchTerm);
+  }
   async getProductById(productId: string) {
     const product = await this.productRepository.findById(productId);
     if (!product) {
