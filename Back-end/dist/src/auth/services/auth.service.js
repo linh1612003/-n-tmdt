@@ -18,14 +18,10 @@ const bcrypt = require("bcrypt");
 const jwt_1 = require("@nestjs/jwt");
 const login_dto_1 = require("../dto/login.dto");
 const auth_repository_1 = require("../repository/auth.repository");
-const otp_repository_1 = require("../repository/otp.repository");
-const email_service_1 = require("./email.service");
 require('dotenv').config();
 let AuthService = class AuthService {
-    constructor(authRepository, otpRepository, emailService, jwtService) {
+    constructor(authRepository, jwtService) {
         this.authRepository = authRepository;
-        this.otpRepository = otpRepository;
-        this.emailService = emailService;
         this.jwtService = jwtService;
     }
     async loginWithGoogle(profile_google) {
@@ -146,112 +142,6 @@ let AuthService = class AuthService {
         const hashedPassword = await bcrypt.hash(password, salt);
         return hashedPassword;
     }
-    async checkEmailAndSendOtp(email) {
-        const normalizedEmail = email.trim().toLowerCase();
-        console.log('[checkEmailAndSendOtp] Input email:', email);
-        console.log('[checkEmailAndSendOtp] Normalized email:', normalizedEmail);
-        let existingUser = await this.authRepository.findByUserName(normalizedEmail);
-        if (!existingUser) {
-            existingUser = await this.authRepository.findByUserName(email.trim());
-        }
-        const allUsersWithEmail = await this.authRepository.findAllUsersContainingEmail(normalizedEmail);
-        console.log('[checkEmailAndSendOtp] All users containing email:', allUsersWithEmail.length);
-        if (allUsersWithEmail.length > 0) {
-            console.log('[checkEmailAndSendOtp] Sample usernames:', allUsersWithEmail.slice(0, 3).map(u => u.username));
-        }
-        console.log('[checkEmailAndSendOtp] Found user:', existingUser ? 'YES' : 'NO');
-        if (existingUser) {
-            console.log('[checkEmailAndSendOtp] User username in DB:', existingUser.username);
-        }
-        if (!existingUser) {
-            console.log('[checkEmailAndSendOtp] Email chưa tồn tại, tạo user mới với email:', normalizedEmail);
-            existingUser = await this.authRepository.createUser({
-                type: 'LOCAL',
-                username: normalizedEmail,
-                password: '',
-                displayName: '',
-            });
-            console.log('[checkEmailAndSendOtp] Đã tạo user mới với ID:', existingUser._id);
-        }
-        if (existingUser.password && existingUser.password !== '' && existingUser.password !== 'access_token' && existingUser.password !== 'refresh_token') {
-            throw new common_1.HttpException('Email này đã được đăng ký. Vui lòng đăng nhập.', common_1.HttpStatus.CONFLICT);
-        }
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date();
-        expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-        await this.otpRepository.createOtp(normalizedEmail, otp, expiresAt, 'register');
-        await this.emailService.sendOtpEmail(email.trim(), otp);
-        return {
-            message: 'Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra email.',
-        };
-    }
-    async verifyOtpAndRegister(verifyOtpDto) {
-        const { email, otp, username, displayName, password } = verifyOtpDto;
-        const normalizedEmail = email.trim().toLowerCase();
-        const normalizedUsername = username.trim().toLowerCase();
-        if (normalizedEmail !== normalizedUsername) {
-            throw new common_1.HttpException('Email không khớp với username', common_1.HttpStatus.BAD_REQUEST);
-        }
-        const existingUser = await this.authRepository.findByUserName(normalizedUsername);
-        if (!existingUser) {
-            throw new common_1.HttpException('Email này không tồn tại. Vui lòng kiểm tra lại email.', common_1.HttpStatus.NOT_FOUND);
-        }
-        if (existingUser.password && existingUser.password !== '') {
-            throw new common_1.HttpException('Email này đã được đăng ký. Vui lòng đăng nhập.', common_1.HttpStatus.CONFLICT);
-        }
-        const validOtp = await this.otpRepository.findValidOtp(normalizedEmail, otp, 'register');
-        if (!validOtp) {
-            throw new common_1.HttpException('Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.', common_1.HttpStatus.BAD_REQUEST);
-        }
-        const hashedPassword = await this.haspassword(password);
-        await this.authRepository.updateUser(normalizedUsername, {
-            displayName,
-            password: hashedPassword,
-        });
-        await this.otpRepository.markOtpAsUsed(normalizedEmail, otp);
-        const updatedUser = await this.authRepository.findByUserName(normalizedUsername);
-        return {
-            message: 'Đăng ký thành công',
-            userId: updatedUser._id.toString(),
-        };
-    }
-    async requestPasswordReset(forgotPasswordDto) {
-        const { email } = forgotPasswordDto;
-        const user = await this.authRepository.findByUserName(email);
-        if (!user) {
-            throw new common_1.HttpException('Email này không tồn tại. Vui lòng kiểm tra lại email.', common_1.HttpStatus.NOT_FOUND);
-        }
-        if (!user.password || user.password === '' || user.password === 'access_token' || user.password === 'refresh_token') {
-            throw new common_1.HttpException('Tài khoản này chưa được đăng ký đầy đủ. Vui lòng đăng ký tài khoản trước.', common_1.HttpStatus.BAD_REQUEST);
-        }
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date();
-        expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-        await this.otpRepository.createOtp(email, otp, expiresAt, 'reset-password');
-        await this.emailService.sendResetPasswordEmail(email, otp);
-        return {
-            message: 'Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra email.',
-        };
-    }
-    async resetPassword(resetPasswordDto) {
-        const { email, otp, newPassword } = resetPasswordDto;
-        const user = await this.authRepository.findByUserName(email);
-        if (!user) {
-            throw new common_1.HttpException('Email này không tồn tại. Vui lòng kiểm tra lại email.', common_1.HttpStatus.NOT_FOUND);
-        }
-        const validOtp = await this.otpRepository.findValidOtp(email, otp, 'reset-password');
-        if (!validOtp) {
-            throw new common_1.HttpException('Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.', common_1.HttpStatus.BAD_REQUEST);
-        }
-        const hashedPassword = await this.haspassword(newPassword);
-        await this.authRepository.updateUser(email, {
-            password: hashedPassword,
-        });
-        await this.otpRepository.markOtpAsUsed(email, otp);
-        return {
-            message: 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.',
-        };
-    }
 };
 exports.AuthService = AuthService;
 __decorate([
@@ -263,8 +153,6 @@ __decorate([
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [auth_repository_1.AuthRepository,
-        otp_repository_1.OtpRepository,
-        email_service_1.EmailService,
         jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

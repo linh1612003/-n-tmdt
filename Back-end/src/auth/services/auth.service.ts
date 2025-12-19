@@ -5,11 +5,15 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { LoginUserDto } from '../dto/login.dto';
+<<<<<<< HEAD
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { AuthRepository } from '../repository/auth.repository';
 import { OtpRepository } from '../repository/otp.repository';
 import { EmailService } from './email.service';
+=======
+import { AuthRepository } from '../repository/auth.repository';
+>>>>>>> origin/back-up
 import { Response } from 'express';
 import { User } from '../schemas/user.schema';
 require('dotenv').config();
@@ -18,10 +22,15 @@ require('dotenv').config();
 export class AuthService {
   constructor(
     private readonly authRepository: AuthRepository,
+<<<<<<< HEAD
     private readonly otpRepository: OtpRepository,
     private readonly emailService: EmailService,
     private jwtService: JwtService,
   ) { }
+=======
+    private jwtService: JwtService,
+  ) {}
+>>>>>>> origin/back-up
 
   async loginWithGoogle(profile_google: any) {
     const displayName = profile_google.displayName;
@@ -194,6 +203,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, salt);
     return hashedPassword;
   }
+<<<<<<< HEAD
 
   async checkEmailAndSendOtp(email: string) {
     // Normalize email: trim và lowercase để tránh lỗi case-sensitive và khoảng trắng
@@ -402,4 +412,6 @@ export class AuthService {
       message: 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.',
     };
   }
+=======
+>>>>>>> origin/back-up
 }

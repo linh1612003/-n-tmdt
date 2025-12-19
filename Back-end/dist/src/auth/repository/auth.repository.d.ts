@@ -25,10 +25,4 @@ export declare class AuthRepository {
     findByUserName(username: string): Promise<import("mongoose").FlattenMaps<User> & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    findAllUsersContainingEmail(email: string): Promise<(import("mongoose").FlattenMaps<User> & {
-        _id: import("mongoose").Types.ObjectId;
-    })[]>;
-    updateUser(username: string, updateData: any): Promise<import("mongoose").Document<unknown, {}, User> & User & {
-        _id: import("mongoose").Types.ObjectId;
-    }>;
 }

@@ -23,6 +23,7 @@ import { CheckPermissionMiddleware } from 'src/middlewares/checkPermission.middl
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],
+<<<<<<< HEAD
   exports: [MongooseModule, UserRepository, UserService],
 })
 export class UserModule implements NestModule {
@@ -35,3 +36,8 @@ export class UserModule implements NestModule {
       );
   }
 }
+=======
+  exports: [MongooseModule, UserRepository],
+})
+export class UserModule {}
+>>>>>>> origin/back-up

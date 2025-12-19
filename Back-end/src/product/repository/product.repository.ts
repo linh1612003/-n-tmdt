@@ -44,6 +44,7 @@ export class ProductRepository {
   }
 
   async getProductsByCategoryId(categoryId: string) {
+<<<<<<< HEAD
     return await this.productModel.aggregate([
       {
         $lookup: {
@@ -54,6 +55,44 @@ export class ProductRepository {
         },
       },
     ]);
+=======
+    // Hỗ trợ cả ObjectId và string
+    try {
+      const categoryIdObject = new ObjectId(categoryId);
+      return await this.productModel.find({ 
+        $or: [
+          { categoryId: categoryId },
+          { categoryId: categoryIdObject },
+          { categoryId: categoryId.toString() }
+        ]
+      });
+    } catch (err) {
+      return await this.productModel.find({ categoryId: categoryId });
+    }
+  }
+
+  async countProductsByCategoryId(categoryId: string) {
+    // So sánh categoryId - hỗ trợ cả string và ObjectId
+    try {
+      // Thử so sánh với string trước (vì categoryId có thể được lưu dưới dạng string)
+      let count = await this.productModel.countDocuments({ categoryId: categoryId });
+      
+      // Nếu không tìm thấy, thử với ObjectId
+      if (count === 0) {
+        try {
+          const categoryIdObject = new ObjectId(categoryId);
+          count = await this.productModel.countDocuments({ categoryId: categoryIdObject });
+        } catch (err) {
+          // categoryId không phải ObjectId hợp lệ, giữ nguyên count = 0
+        }
+      }
+      
+      return count;
+    } catch (err) {
+      console.error('Error counting products by categoryId:', err);
+      return 0;
+    }
+>>>>>>> origin/back-up
   }
 
   async updateImagesOfProduct(productId: string, urlFiles: string[]) {
@@ -84,6 +123,7 @@ export class ProductRepository {
     );
   }
 
+<<<<<<< HEAD
   async searchProducts(searchTerm: string) {
     // Tìm kiếm trong MongoDB với regex (case-insensitive)
     // Escape special regex characters
@@ -130,5 +170,29 @@ export class ProductRepository {
     
     console.log('ProductRepository: Found products:', results.length);
     return results;
+=======
+  async updateProductsCategoryId(oldCategoryId: string, newCategoryId: string) {
+    try {
+      // Hỗ trợ cả ObjectId và string
+      const oldCategoryIdObject = new ObjectId(oldCategoryId);
+      const result = await this.productModel.updateMany(
+        {
+          $or: [
+            { categoryId: oldCategoryId },
+            { categoryId: oldCategoryIdObject },
+            { categoryId: oldCategoryId.toString() }
+          ]
+        },
+        { $set: { categoryId: newCategoryId } }
+      );
+      return result;
+    } catch (err) {
+      // Nếu không phải ObjectId hợp lệ, chỉ update với string
+      return await this.productModel.updateMany(
+        { categoryId: oldCategoryId },
+        { $set: { categoryId: newCategoryId } }
+      );
+    }
+>>>>>>> origin/back-up
   }
 }

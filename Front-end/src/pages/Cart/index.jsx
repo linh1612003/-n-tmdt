@@ -12,7 +12,11 @@ import { formatPrice } from '../../../src/utils/common';
 import cartsApi from '../../api/cartApi';
 import orderApi from '../../api/ordersApi';
 import userApi from '../../api/userApi';
+<<<<<<< HEAD
 import VietnamAddressField from '../../components/form-controls/VietnamAddressField';
+=======
+import SearchAddressField from '../../components/form-controls/SearchAddressField';
+>>>>>>> origin/back-up
 import { removeFromCart } from './cartSlice';
 import CartClear from './components/CartClear';
 import { cartItemsCountSelector, cartTotalSelector } from './selectors';
@@ -124,9 +128,14 @@ const useStyles = makeStyles((theme) => ({
     },
     leftPanel: {
         width: '50%',
+<<<<<<< HEAD
         borderRight: '1px solid #e0e0e0',
         padding: '30px',
         backgroundColor: '#fafafa',
+=======
+        borderRight: '1px solid black',
+        padding: '20px',
+>>>>>>> origin/back-up
     },
     rightPanel: {
         width: '50%',
@@ -134,7 +143,11 @@ const useStyles = makeStyles((theme) => ({
     },
     input: {
         fontFamily: 'monospace',
+<<<<<<< HEAD
         width: '100%',
+=======
+        height: '60px',
+>>>>>>> origin/back-up
     },
     img: {
         height: '120px',
@@ -142,6 +155,7 @@ const useStyles = makeStyles((theme) => ({
         marginRight: '15px',
     },
     item: {
+<<<<<<< HEAD
         display: 'flex',
         flexDirection: 'column',
         gap: theme.spacing(1),
@@ -159,11 +173,30 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(3),
         borderRadius: '8px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+=======
+        marginBottom: '10px',
+>>>>>>> origin/back-up
     },
 }));
 
 const validationSchema = Yup.object().shape({
+<<<<<<< HEAD
 
+=======
+    displayName: Yup.string()
+        .required('Vui lòng nhập tên người đặt hàng')
+        .min(2, 'Tên người đặt hàng phải có ít nhất 2 ký tự'),
+    contactPhone: Yup.string()
+        .required('Vui lòng nhập số điện thoại')
+        .matches(
+            /^(0|\+84|84)[0-9]{9,10}$/,
+            'Số điện thoại không đúng định dạng. Vui lòng nhập số điện thoại Việt Nam (10 số bắt đầu bằng 0)'
+        ),
+    address: Yup.string()
+        .required('Vui lòng nhập địa chỉ (quận, thành phố)'),
+    addressDetail: Yup.string()
+        .required('Vui lòng nhập số nhà, tên đường'),
+>>>>>>> origin/back-up
 });
 function CartPages(props) {
     //=================================================================================================================================
@@ -233,6 +266,7 @@ function CartPages(props) {
                 ]);
 
                 setCartList(cartList);
+<<<<<<< HEAD
                 // Map dữ liệu từ userData vào formData (đảm bảo tên field khớp với form)
                 setFormData({
                     receiver: String(userData.displayName || '').trim(),
@@ -241,6 +275,9 @@ function CartPages(props) {
                     addressDetail: String(userData.addressDetail || '').trim(),
                     isInCart: true,
                 });
+=======
+                setFormData(userData);
+>>>>>>> origin/back-up
             } catch (error) {
                 console.log('Failed to fetch data', error);
                 setError('Failed to fetch data');
@@ -265,6 +302,7 @@ function CartPages(props) {
     });
 
     const handleBuyNow = async (values) => {
+<<<<<<< HEAD
         // Đảm bảo các giá trị là string và không rỗng
         const shippingInfo = {
             receiver: String(values.receiver || '').trim(),
@@ -290,10 +328,21 @@ function CartPages(props) {
             return;
         }
 
+=======
+        const shippingInfo = {
+            receiver: values.displayName,
+            phone: values.contactPhone,
+            address: values.address,
+            addressDetail: values.addressDetail,
+            isInCart: true,
+        };
+
+>>>>>>> origin/back-up
         const updatedProducts = selectedProducts.map((selectedProduct) => {
             const cartItem = cartList.find((item) =>
                 item.product.some((product) => product._id === selectedProduct._id),
             );
+<<<<<<< HEAD
             if (!cartItem) {
                 console.error('[Cart] CartItem not found for product:', selectedProduct._id);
                 return null;
@@ -320,6 +369,19 @@ function CartPages(props) {
             enqueueSnackbar('Vui lòng đăng nhập để thanh toán!', {
                 variant: 'warning',
             });
+=======
+            return {
+                productId: selectedProduct._id,
+                price: selectedProduct.salePrice,
+                quantity: cartItem.quantity, // Cập nhật số lượng từ cartList
+                urlImage: selectedProduct.images[0],
+            };
+        });
+
+        const payloadPay = { userId, products: updatedProducts, shippingInfo };
+
+        if (!userId) {
+>>>>>>> origin/back-up
             return;
         }
         if (selectedProducts.length === 0) {
@@ -329,6 +391,7 @@ function CartPages(props) {
             return;
         }
         try {
+<<<<<<< HEAD
             console.log('[Cart] Payload to send:', JSON.stringify(payloadPay, null, 2));
             const req = await orderApi.add(payloadPay);
             navigate(`/orders?id=${req.orderExist._id}`);
@@ -337,6 +400,12 @@ function CartPages(props) {
             const errorMessage = error?.response?.data?.message || error?.message || 'Đã xảy ra lỗi! Vui lòng thử lại sau.';
             console.error('[Cart] Error message:', errorMessage);
             enqueueSnackbar(errorMessage, { variant: 'error' });
+=======
+            const req = await orderApi.add(payloadPay);
+            navigate(`/orders?id=${req.orderExist._id}`);
+        } catch (error) {
+            enqueueSnackbar('Đã xảy ra lỗi! Vui lòng thử lại sau.', { variant: 'error' });
+>>>>>>> origin/back-up
         }
     };
 
@@ -377,12 +446,16 @@ function CartPages(props) {
                                 <Typography
                                     component='h1'
                                     variant='h5'
+<<<<<<< HEAD
                                     style={{
                                         fontFamily: 'monospace',
                                         marginBottom: '24px',
                                         fontWeight: 'bold',
                                         color: '#222'
                                     }}
+=======
+                                    style={{ fontFamily: 'monospace', marginBottom: '20px' }}
+>>>>>>> origin/back-up
                                 >
                                     Thông tin vận chuyển
                                 </Typography>
@@ -392,6 +465,7 @@ function CartPages(props) {
                                     validationSchema={validationSchema}
                                     onSubmit={handleBuyNow}
                                 >
+<<<<<<< HEAD
                                     {({ handleChange, handleBlur }) => (
                                         <Form className={classes.wrapper}>
                                             <Box className={classes.item}>
@@ -452,12 +526,87 @@ function CartPages(props) {
                                                     style={{ fontFamily: 'monospace' }}
                                                 />
                                             </Box>
+=======
+                                    {({ handleChange, handleBlur, errors, touched }) => (
+                                        <Form className={classes.wrapper}>
+                                            <Form className={classes.wrapper}>
+                                                <Box className={classes.item}>
+                                                    <Typography className={classes.name}>
+                                                        Tên người đặt
+                                                    </Typography>
+                                                    <Field
+                                                        as={TextField}
+                                                        name='displayName'
+                                                        className={classes.input}
+                                                        variant='outlined'
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        fullWidth={true}
+                                                        fontFamily='monospace'
+                                                        error={touched.displayName && !!errors.displayName}
+                                                        helperText={touched.displayName && errors.displayName}
+                                                    />
+                                                </Box>
+                                                <Box className={classes.item}>
+                                                    <Typography className={classes.name}>
+                                                        Địa chỉ ( quận , thành phố )
+                                                    </Typography>
+                                                    <Field
+                                                        as={SearchAddressField}
+                                                        name='address'
+                                                        className={classes.input}
+                                                        variant='outlined'
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        fullWidth={true}
+                                                        error={touched.address && !!errors.address}
+                                                        helperText={touched.address && errors.address}
+                                                    />
+                                                </Box>
+                                                <Box className={classes.item}>
+                                                    <Typography className={classes.name}>
+                                                        Số nhà{' '}
+                                                    </Typography>
+                                                    <Field
+                                                        as={TextField}
+                                                        name='addressDetail'
+                                                        className={classes.input}
+                                                        variant='outlined'
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        fullWidth={true}
+                                                        error={touched.addressDetail && !!errors.addressDetail}
+                                                        helperText={touched.addressDetail && errors.addressDetail}
+                                                    />
+                                                </Box>
+
+                                                <Box className={classes.item}>
+                                                    <Typography className={classes.name}>
+                                                        Số điện thoại
+                                                    </Typography>
+                                                    <Field
+                                                        as={TextField}
+                                                        name='contactPhone'
+                                                        className={classes.input}
+                                                        variant='outlined'
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        fullWidth={true}
+                                                        error={touched.contactPhone && !!errors.contactPhone}
+                                                        helperText={touched.contactPhone && errors.contactPhone}
+                                                    />
+                                                </Box>
+                                            </Form>
+>>>>>>> origin/back-up
                                             <Box
                                                 style={{
                                                     justifyContent: 'center',
                                                     display: 'flex',
                                                     alignItems: 'center',
+<<<<<<< HEAD
                                                     marginTop: '24px',
+=======
+>>>>>>> origin/back-up
                                                 }}
                                             >
                                                 <Button
@@ -466,6 +615,7 @@ function CartPages(props) {
                                                     color='primary'
                                                     type='submit'
                                                     style={{
+<<<<<<< HEAD
                                                         background: 'black',
                                                         borderRadius: '4px',
                                                         fontFamily: 'monospace',
@@ -488,6 +638,17 @@ function CartPages(props) {
                                                 // disabled={selectedProducts.length === 0}
                                                 >
                                                     ĐẶT HÀNG
+=======
+                                                        marginTop: '20px',
+                                                        background: 'black',
+                                                        borderRadius: '0px',
+                                                        fontFamily: 'monospace',
+                                                        color: 'white',
+                                                    }}
+                                                // disabled={selectedProducts.length === 0}
+                                                >
+                                                    Đặt hàng
+>>>>>>> origin/back-up
                                                 </Button>
                                             </Box>
                                         </Form>
@@ -508,7 +669,11 @@ function CartPages(props) {
                             {cartList.map((cartItem) => (
                                 <Box key={cartItem._id}>
                                     {cartItem.product.map((productItem, index) => (
+<<<<<<< HEAD
                                         <Box key={`${cartItem._id}-${productItem._id}-${index}`} style={{ display: 'flex' }}>
+=======
+                                        <Box style={{ display: 'flex' }}>
+>>>>>>> origin/back-up
                                             <Box
                                                 style={{
                                                     display: 'flex',

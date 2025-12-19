@@ -6,6 +6,7 @@ const userApi = {
         return axiosClient.post(url,data)
     },
 
+<<<<<<< HEAD
     checkEmailAndSendOtp(email){
         const url = 'api/auth/check-email';
         return axiosClient.post(url, { email })
@@ -16,6 +17,8 @@ const userApi = {
         return axiosClient.post(url, data)
     },
 
+=======
+>>>>>>> origin/back-up
     login(data){
         const url = 'api/auth/login';
         return axiosClient.post(url,data)
@@ -27,6 +30,7 @@ const userApi = {
     update(userId, data) {
         const url = `api/users/${userId}`;
         return axiosClient.put(url, data);
+<<<<<<< HEAD
     },
     forgotPassword(email) {
         const url = 'api/auth/forgot-password';
@@ -36,6 +40,9 @@ const userApi = {
         const url = 'api/auth/reset-password';
         return axiosClient.post(url, data);
     }
+=======
+      }
+>>>>>>> origin/back-up
 }
 
 export default userApi

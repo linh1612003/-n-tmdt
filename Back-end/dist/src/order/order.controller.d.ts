@@ -1,21 +1,17 @@
 import { OrderService } from './service/order.service';
 import { CreateOrderDto } from './dto/CreateOrder.dto';
-import { Request } from 'express';
 export declare class OrderController {
     private readonly orderService;
     constructor(orderService: OrderService);
     getAllOrders(): Promise<(import("mongoose").Document<unknown, {}, import("./schema/order.shema").Order> & import("./schema/order.shema").Order & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
-    getTotalRevenue(): Promise<{
-        totalRevenue: any;
-    }>;
-    getOrderUser(userId: string, req: Request): Promise<(import("mongoose").Document<unknown, {}, import("./schema/order.shema").Order> & import("./schema/order.shema").Order & {
-        _id: import("mongoose").Types.ObjectId;
-    })[]>;
     getOrderById(orderId: string): Promise<import("mongoose").Document<unknown, {}, import("./schema/order.shema").Order> & import("./schema/order.shema").Order & {
         _id: import("mongoose").Types.ObjectId;
     }>;
+    getOrderUser(userId: string): Promise<(import("mongoose").Document<unknown, {}, import("./schema/order.shema").Order> & import("./schema/order.shema").Order & {
+        _id: import("mongoose").Types.ObjectId;
+    })[]>;
     CreateOrder(createOrderDto: CreateOrderDto): Promise<{
         mesage: string;
         orderExist: import("mongoose").Document<unknown, {}, import("./schema/order.shema").Order> & import("./schema/order.shema").Order & {
@@ -52,5 +48,13 @@ export declare class OrderController {
     }>;
     updateShippingStatus(orderId: string, shippingStatus: string): Promise<{
         mesage: string;
+    }>;
+    getTotalRevenue(): Promise<{
+        totalRevenue: any;
+    }>;
+    getRevenueAndProfit(startDate?: string, endDate?: string): Promise<{
+        totalRevenue: number;
+        totalCost: number;
+        profit: number;
     }>;
 }

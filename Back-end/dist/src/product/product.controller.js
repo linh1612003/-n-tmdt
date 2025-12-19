@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductController = void 0;
 const common_1 = require("@nestjs/common");
 const CreateProduct_dto_1 = require("./dto/CreateProduct.dto");
+const UpdateProduct_dto_1 = require("./dto/UpdateProduct.dto");
 const product_service_1 = require("./service/product.service");
 let ProductController = class ProductController {
     constructor(productService) {
@@ -42,6 +43,8 @@ let ProductController = class ProductController {
         return this.productService.deleteProductById(productId);
     }
     async updateProductById(productId, updateProductDto) {
+        console.log('Received update product request for ID:', productId);
+        console.log('Update data:', JSON.stringify(updateProductDto, null, 2));
         return this.productService.updateProductById(productId, updateProductDto);
     }
 };
@@ -99,7 +102,7 @@ __decorate([
     __param(0, (0, common_1.Param)('productId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, CreateProduct_dto_1.CreateProductDto]),
+    __metadata("design:paramtypes", [String, UpdateProduct_dto_1.UpdateProductDto]),
     __metadata("design:returntype", Promise)
 ], ProductController.prototype, "updateProductById", null);
 exports.ProductController = ProductController = __decorate([

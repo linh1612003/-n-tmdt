@@ -1,10 +1,19 @@
 import { LoginPage } from "../../src/pages/Auth/LoginPage/index";
+<<<<<<< HEAD
 import { ForgotPasswordPage } from "../../src/pages/Auth/ForgotPassword/index";
 import AdminPage from "../admin/pages";
 import Dashboard from "../admin/pages/Dashboard";
 import MenuManagement from "../admin/pages/Menu/MenuManagement";
 import OrderManagement from "../admin/pages/Order/OrderManagement";
 import ProductManagement from "../admin/pages/Product/ProductManagement";
+=======
+import AdminPage from "../admin/pages";
+import MenuManagement from "../admin/pages/Menu/MenuManagement";
+import OrderManagement from "../admin/pages/Order/OrderManagement";
+import ProductManagement from "../admin/pages/Product/ProductManagement";
+import CategoryManagement from "../admin/pages/Category/CategoryManagement";
+import AdminDashboard from "../admin/pages/Dashboard";
+>>>>>>> origin/back-up
 import AboutCompany from "../pages/AboutCompany";
 import AccountInfo from "../pages/AccountInfo";
 import Account from "../pages/AccountInfo/components/Account";
@@ -26,8 +35,11 @@ import SuggestedProducts from "../pages/Product/components/SuggestedProducts ";
 import DetailPage from "../pages/Product/pages/DetailPage";
 import Test from "../pages/Test/Test";
 import VnpayCallback from "../pages/Order/components/VnpayCallback";
+<<<<<<< HEAD
 import UserChat from "../pages/Chat/UserChat";
 import AdminChat from "../admin/pages/Chat/AdminChat";
+=======
+>>>>>>> origin/back-up
 
 export const routes = [
     { 
@@ -43,8 +55,17 @@ export const routes = [
         isPrivate: true,
         children: [
             {
+<<<<<<< HEAD
               path: 'dashboard',
               page: Dashboard,
+=======
+              path: '',
+              page: AdminDashboard,
+            },
+            {
+              path: 'dashboard',
+              page: AdminDashboard,
+>>>>>>> origin/back-up
             },
             {
               path: 'products',
@@ -55,12 +76,21 @@ export const routes = [
               page: MenuManagement,
             },
             {
+<<<<<<< HEAD
               path: 'orders',
               page: OrderManagement,
             },
             {
               path: 'chat',
               page: AdminChat,
+=======
+              path: 'categories',
+              page: CategoryManagement,
+            },
+            {
+              path: 'orders',
+              page: OrderManagement,
+>>>>>>> origin/back-up
             },
           ],
     },
@@ -72,6 +102,7 @@ export const routes = [
         isShowFooter : false,
     },
     { 
+<<<<<<< HEAD
         path:'/forgotPassword',
         exact: true,
         page : ForgotPasswordPage,
@@ -79,6 +110,8 @@ export const routes = [
         isShowFooter : false,
     },
     { 
+=======
+>>>>>>> origin/back-up
         path:'/products',
         // exact: true,
         page : Product,
@@ -180,12 +213,15 @@ export const routes = [
         isShowFooter : false,
     },
     { 
+<<<<<<< HEAD
         path:'/chat',
         page : UserChat,
         isShowHeader : true,
         isShowFooter : true,
     },
     { 
+=======
+>>>>>>> origin/back-up
         path:'*',
         page : NotFound,
     },

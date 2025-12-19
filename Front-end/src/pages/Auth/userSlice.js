@@ -10,6 +10,7 @@ export const register = createAsyncThunk(
   }
 );
 
+<<<<<<< HEAD
 export const checkEmailAndSendOtp = createAsyncThunk(
   'user/checkEmailAndSendOtp',
   async (email) => {
@@ -26,6 +27,8 @@ export const verifyOtpAndRegister = createAsyncThunk(
   }
 );
 
+=======
+>>>>>>> origin/back-up
 export const login = createAsyncThunk(
   'user/login',
   async (payload) => {
@@ -33,8 +36,11 @@ export const login = createAsyncThunk(
     localStorage.setItem('access_token', data.access_token);
     localStorage.setItem('userId', data.userId);
     localStorage.setItem('role', data.role);
+<<<<<<< HEAD
     // Lưu thời gian đăng nhập để ChatWidget có thể kiểm tra
     localStorage.setItem('login_time', Date.now().toString());
+=======
+>>>>>>> origin/back-up
     //Demo 
     //============================================================================================================================
     // return data.userId

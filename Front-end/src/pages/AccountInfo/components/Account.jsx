@@ -17,9 +17,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useSnackbar } from 'notistack';
 import userApi from '../../../api/userApi';
+<<<<<<< HEAD
 import orderApi from '../../../api/ordersApi';
 import { logout, update } from '../../Auth/userSlice';
 import VietnamAddressField from '../../../components/form-controls/VietnamAddressField';
+=======
+import { logout, update } from '../../Auth/userSlice';
+>>>>>>> origin/back-up
 
 const useStyles = makeStyles((theme) => ({
     wrapper: {
@@ -47,11 +51,19 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
         width: '200px',
     },
+<<<<<<< HEAD
     wrapperButton: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         gap: theme.spacing(1),
+=======
+    wrapperButton:{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: theme.spacing(1),
+>>>>>>> origin/back-up
     },
     paper: {
         padding: theme.spacing(3),
@@ -68,8 +80,13 @@ function Account() {
     const userId = localStorage.getItem('userId');
     const [formData, setFormData] = useState({
         displayName: '',
+<<<<<<< HEAD
         address: '',
         addressDetail: '',
+=======
+        address:'',
+        addressDetail:'',
+>>>>>>> origin/back-up
         contactPhone: '',
     });
     const theme = useTheme();
@@ -104,6 +121,7 @@ function Account() {
 
     const handleUpdateUser = async (values, { setSubmitting }) => {
         try {
+<<<<<<< HEAD
             // Cập nhật displayName và các trường khác (nếu có)
             const userUpdateData = {
                 displayName: values.displayName,
@@ -156,13 +174,26 @@ function Account() {
             console.error('Error updating user:', error);
             const errorMessage = error?.message || 'Không thể cập nhật thông tin. Vui lòng thử lại.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
+=======
+            const action = update ({ id: userId, ...values });
+            const resultAction = await dispatch(action);
+            unwrapResult(resultAction);
+            enqueueSnackbar('Update successfully !!!', { variant: 'success' });
+            navigate('/products');
+        } catch (error) {
+            enqueueSnackbar('Update successfully !!!', { variant: 'success' });
+>>>>>>> origin/back-up
         }
         setSubmitting(false);
     };
 
     return (
         <Box className={classes.root}>
+<<<<<<< HEAD
             <Container style={{}}>
+=======
+            <Container style={{ }}>
+>>>>>>> origin/back-up
                 <Paper
                     elevation={0}
                     className={classes.paper}
@@ -199,10 +230,22 @@ function Account() {
                                             />
                                         </Box>
                                         <Box className={classes.item}>
+<<<<<<< HEAD
                                             <Typography className={classes.name}>Địa chỉ (Tỉnh/TP - Quận/Huyện - Phường/Xã) </Typography>
                                             <div className={classes.input}>
                                                 <VietnamAddressField name='address' />
                                             </div>
+=======
+                                            <Typography className={classes.name}>Địa chỉ (Phường/Quận/Thành Phố) </Typography>
+                                            <Field
+                                                as={TextField}
+                                                name='address'
+                                                className={classes.input}
+                                                variant='outlined'
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                            />
+>>>>>>> origin/back-up
                                         </Box>
                                         <Box className={classes.item}>
                                             <Typography className={classes.name}>
@@ -232,6 +275,7 @@ function Account() {
                                         </Box>
                                     </Form>
                                     <Box className={classes.wrapperButton}>
+<<<<<<< HEAD
                                         <Button
                                             className={classes.button}
                                             variant='contained'
@@ -263,6 +307,39 @@ function Account() {
                                         >
                                             Logout
                                         </Button>
+=======
+                                    <Button
+                                        className={classes.button}
+                                        variant='contained'
+                                        color='primary'
+                                        type='submit'
+                                        style={{ 
+                                          marginRight: '10px', 
+                                          background: 'black' ,
+                                          borderRadius: '0px' ,
+                                          fontFamily: 'monospace',
+                                      }}
+                                    >
+                                        Update
+                                    </Button>
+                                    <Button
+                                        className={classes.button}
+                                        variant='contained'
+                                        color='secondary'
+                                        onClick={handleLogout}
+                                        style={{
+                                          marginRight: '10px',
+                                          background: 'white',
+                                          color: 'black',
+                                          border: '1px solid black',
+                                          fontWeight: 'bold',
+                                          borderRadius: '0px' ,
+                                          fontFamily: 'monospace',
+                                      }}
+                                    >
+                                        Logout
+                                    </Button>
+>>>>>>> origin/back-up
                                     </Box>
                                 </Form>
                             )}

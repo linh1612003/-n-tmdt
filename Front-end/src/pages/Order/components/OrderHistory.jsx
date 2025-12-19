@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { List, Card, Spin, Alert, Modal, Typography, Row, Col, Tabs } from 'antd';
+=======
+import { List, Card, Spin, Alert, Modal, Typography, Row, Col } from 'antd';
+>>>>>>> origin/back-up
 import { format as formatDate } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import orderApi from '../../../api/ordersApi';
@@ -12,11 +16,15 @@ const OrderHistory = () => {
     const [error, setError] = useState(null);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+<<<<<<< HEAD
     const [activeTab, setActiveTab] = useState('all');
+=======
+>>>>>>> origin/back-up
 
     useEffect(() => {
         const fetchOrderHistory = async () => {
             try {
+<<<<<<< HEAD
                 // Lấy userId mới nhất từ localStorage để đảm bảo luôn đúng
                 const currentUserIdFromStorage = localStorage.getItem('userId');
                 const userIdToUse = currentUserIdFromStorage || userId;
@@ -115,6 +123,14 @@ const OrderHistory = () => {
                 } else {
                     setError(err.response?.data?.message || err.message || 'Có lỗi xảy ra khi tải lịch sử đặt hàng');
                 }
+=======
+                const orderData = await orderApi.getOrderHistory(userId);
+                const sortedOrders = orderData.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+                setOrders(sortedOrders);
+                
+            } catch (err) {
+                setError(err.message);
+>>>>>>> origin/back-up
             } finally {
                 setLoading(false);
             }
@@ -128,11 +144,33 @@ const OrderHistory = () => {
         setIsModalVisible(true);
     };
 
+<<<<<<< HEAD
+=======
+    const handleOk = () => {
+        setIsModalVisible(false);
+        setSelectedOrder(null);
+    };
+
+>>>>>>> origin/back-up
     const handleCancel = () => {
         setIsModalVisible(false);
         setSelectedOrder(null);
     };
 
+<<<<<<< HEAD
+=======
+    const renderPaymentMethod = (method) => {
+        switch (method) {
+            case 'payment':
+                return 'Thanh toán trực tuyến';
+            case 'cash':
+                return 'Thanh toán khi nhận hàng';
+            default:
+                return 'Phương thức không xác định'; // Giá trị mặc định nếu không khớp
+        }
+    };
+
+>>>>>>> origin/back-up
     const renderPaymentStatus = (status) => {
       switch (status) {
           case 'pending':
@@ -146,6 +184,7 @@ const OrderHistory = () => {
   
 
     const renderShippingStatus = (status) => {
+<<<<<<< HEAD
         // Xử lý cả tiếng Việt và tiếng Anh
         const statusLower = status?.toLowerCase() || '';
         switch (statusLower) {
@@ -169,12 +208,29 @@ const OrderHistory = () => {
                 return 'Đã trả lại';
             case 'canceled':
             case 'đã hủy':
+=======
+        switch (status) {
+            case 'not shipped':
+                return 'Chưa vận chuyển';
+            case 'processing':
+                return 'Đang xử lý';
+            case 'in transit':
+                return 'Đang vận chuyển';
+            case 'out for delivery':
+                return 'Đang giao hàng';
+            case 'delivered':
+                return 'Đã giao hàng';
+            case 'returned':
+                return 'Đã trả lại';
+            case 'canceled':
+>>>>>>> origin/back-up
                 return 'Đã hủy';
             default:
                 return status;
         }
     };
 
+<<<<<<< HEAD
     // Hàm lọc đơn hàng theo tab
     const getFilteredOrders = () => {
         if (activeTab === 'all') {
@@ -209,6 +265,8 @@ const OrderHistory = () => {
 
     const filteredOrders = getFilteredOrders();
 
+=======
+>>>>>>> origin/back-up
     const renderStatus = (status) => {
         switch (status) {
             case 'pending':
@@ -233,6 +291,7 @@ const OrderHistory = () => {
             <div style={{ textAlign: 'center' }}>
                 <h1 style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>Lịch sử đặt hàng</h1>
             </div>
+<<<<<<< HEAD
             
             <Tabs 
                 activeKey={activeTab} 
@@ -288,6 +347,12 @@ const OrderHistory = () => {
                     grid={{ gutter: 16, column: 1 }}
                     dataSource={filteredOrders}
                     renderItem={order => (
+=======
+            <List
+                grid={{ gutter: 16, column: 1 }}
+                dataSource={orders}
+                renderItem={order => (
+>>>>>>> origin/back-up
                     <List.Item>
                         <Card
                             bordered={false}
@@ -312,8 +377,12 @@ const OrderHistory = () => {
                         </Card>
                     </List.Item>
                 )}
+<<<<<<< HEAD
                 />
             )}
+=======
+            />
+>>>>>>> origin/back-up
 
             {selectedOrder && (
                 <Modal

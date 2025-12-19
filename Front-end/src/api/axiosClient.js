@@ -16,9 +16,12 @@ axiosClient.interceptors.request.use(
         // If accessToken exists, set the Authorization header
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
+<<<<<<< HEAD
             console.log('axiosClient - Added Authorization header for URL:', config.url);
         } else {
             console.warn('axiosClient - No access_token found in localStorage for URL:', config.url);
+=======
+>>>>>>> origin/back-up
         }
 
         return config;
@@ -39,6 +42,7 @@ axiosClient.interceptors.response.use(
     function (error) {
         // Any status codes that fall outside the range of 2xx cause this function to trigger
         // Do something with response error
+<<<<<<< HEAD
         if (!error.response) {
             // Network error or no response
             return Promise.reject(new Error('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.'));
@@ -103,6 +107,27 @@ axiosClient.interceptors.response.use(
             throw new Error(err1);
         }
         if (URLS.includes(config?.url) && status === 409) {
+=======
+        
+        // Kiểm tra error.response có tồn tại không
+        if (!error.response) {
+            // Lỗi mạng hoặc server không phản hồi
+            const networkError = error.message || 'Không thể kết nối đến server. Vui lòng thử lại.';
+            return Promise.reject(new Error(networkError));
+        }
+
+        const { config, status, data } = error.response;
+        const URLS = ['/api/auth/register','/api/auth/login'];
+
+        // Kiểm tra data và data.message có tồn tại không
+        const err1 = data?.message || data?.error || error.message || 'Đã xảy ra lỗi';
+        
+        // Kiểm tra config và config.url có tồn tại không
+        if (config?.url && URLS.includes(config.url) && status === 401) {
+            throw new Error(err1);
+        }
+        if (config?.url && URLS.includes(config.url) && status === 409) {
+>>>>>>> origin/back-up
             throw new Error(err1);
         }
         // Handle other error cases here if needed

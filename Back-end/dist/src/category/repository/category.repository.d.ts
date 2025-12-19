@@ -4,8 +4,10 @@ import { CreateCategoryDto } from '../dto/CreateCategory.dto';
 export declare class CategoryRepository {
     private categoryModel;
     constructor(categoryModel: Model<Category>);
-    findByAvailabilityStatus(availabilityStatus: string): Promise<any[]>;
     findById(categoryId: string): Promise<import("mongoose").Document<unknown, {}, Category> & Category & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    findByName(name: string): Promise<import("mongoose").Document<unknown, {}, Category> & Category & {
         _id: import("mongoose").Types.ObjectId;
     }>;
     getAll(): Promise<(import("mongoose").Document<unknown, {}, Category> & Category & {

@@ -63,19 +63,9 @@ let AuthRepository = class AuthRepository {
         return await this.UserModel.create(user);
     }
     async findByUserName(username) {
-        const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         return await this.UserModel.findOne({
-            username: { $regex: new RegExp(`^${escapedUsername}$`, 'i') },
+            username: username,
         }).lean();
-    }
-    async findAllUsersContainingEmail(email) {
-        const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return await this.UserModel.find({
-            username: { $regex: new RegExp(escapedEmail, 'i') },
-        }).lean();
-    }
-    async updateUser(username, updateData) {
-        return await this.UserModel.findOneAndUpdate({ username: username }, updateData, { new: true });
     }
 };
 exports.AuthRepository = AuthRepository;

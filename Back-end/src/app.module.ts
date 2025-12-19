@@ -13,6 +13,8 @@ import { MenuModule } from './menu/menu.module';
 import { OrderModule } from './order/order.module';
 import { ReviewModule } from './review/review.module';
 import { ChatModule } from './chat/chat.module';
+import { NotificationModule } from './notification/notification.module';
+import { AdminModule } from './admin/admin.module';
 
 require('dotenv').config();
 
@@ -54,6 +56,8 @@ require('dotenv').config();
     OrderModule,
     ReviewModule,
     ChatModule,
+    NotificationModule,
+    AdminModule,
   ],
 })
 export class AppModule { }

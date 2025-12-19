@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import "./style.css";
+<<<<<<< HEAD
 import { login, checkEmailAndSendOtp, verifyOtpAndRegister } from "../userSlice";
+=======
+import { login, register } from "../userSlice";
+>>>>>>> origin/back-up
 import { useDispatch } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useSnackbar } from "notistack";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { loginSchema, registerSchema } from '../validationSchema'
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import * as Yup from "yup";
 
 const otpSchema = Yup.object().shape({
@@ -15,13 +20,18 @@ const otpSchema = Yup.object().shape({
         .length(6, "OTP must be exactly 6 digits")
         .matches(/^\d+$/, "OTP must contain only numbers"),
 });
+=======
+>>>>>>> origin/back-up
 
 export const LoginPage = () => {
     const [isSignUp, setIsSignUp] = useState(true);
     const [isSwitch, setIsSwitch] = useState(false);
     const [formData, setFormData] = useState({ username: '', displayName: '', password: '' });
+<<<<<<< HEAD
     const [showOtpStep, setShowOtpStep] = useState(false);
     const [registerData, setRegisterData] = useState(null);
+=======
+>>>>>>> origin/back-up
     const isAdmin = localStorage.getItem('role') || ''
 
     const changeForm = (e) => {
@@ -35,21 +45,32 @@ export const LoginPage = () => {
 
     const dispatch = useDispatch();
     const { enqueueSnackbar } = useSnackbar();
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> origin/back-up
     const handleLoginSubmit = async (values, { setSubmitting }) => {
         try {
             const action = login(values);
             const resultAction = await dispatch(action);
             const user = unwrapResult(resultAction);
+<<<<<<< HEAD
 
             enqueueSnackbar('Login successfully !!!', { variant: 'success' });
 
+=======
+            
+            enqueueSnackbar('Login successfully !!!', { variant: 'success' });
+    
+>>>>>>> origin/back-up
             if (user.role === 'admin') {
                 navigate('/admin');
             } else {
                 navigate('/products');
             }
         } catch (error) {
+<<<<<<< HEAD
             let errMessage = error.response?.data?.message || error.message || 'Login failed';
 
             // Kiểm tra nếu email chưa được đăng ký
@@ -61,6 +82,9 @@ export const LoginPage = () => {
                 errMessage = 'Mật khẩu không đúng. Vui lòng thử lại.';
             }
 
+=======
+            const errMessage = error.response?.data?.message || error.message || 'Login failed';
+>>>>>>> origin/back-up
             console.log('Failed to login : ', errMessage);
             enqueueSnackbar(errMessage, { variant: 'error' });
             navigate('/login');
@@ -68,6 +92,7 @@ export const LoginPage = () => {
             setSubmitting(false);
         }
     };
+<<<<<<< HEAD
 
     const handleRegisterSubmit = async (values, { setSubmitting }) => {
         try {
@@ -145,6 +170,21 @@ export const LoginPage = () => {
     const handleBackToRegister = () => {
         setShowOtpStep(false);
         setRegisterData(null);
+=======
+    
+    const handleRegisterSubmit = async (values, { setSubmitting }) => {
+        try {
+            const action = register(values);
+            const resultAction = await dispatch(action);
+            unwrapResult(resultAction);
+            enqueueSnackbar('Registration successfully !!!', { variant: 'success' });
+        } catch (error) {
+            const errMessage = error.response?.data?.message || error.message || 'Registration failed';
+            console.log('Failed to register : ', errMessage);
+            enqueueSnackbar(errMessage, { variant: 'error' });
+        }
+        setSubmitting(false);
+>>>>>>> origin/back-up
     };
 
     const HandleLoginWithFacebook = () => {
@@ -158,6 +198,7 @@ export const LoginPage = () => {
         <div className="login-page">
             <div className="main-login-page">
                 <div className={`a-container ${isSwitch && "is-txl is-z200"}`}>
+<<<<<<< HEAD
                     {!showOtpStep ? (
                         <Formik
                             initialValues={formData}
@@ -215,6 +256,27 @@ export const LoginPage = () => {
                             )}
                         </Formik>
                     )}
+=======
+                    <Formik
+                        initialValues={formData}
+                        validationSchema={registerSchema}
+                        onSubmit={handleRegisterSubmit}
+                    >
+                        {({ isSubmitting, handleChange, handleBlur }) => (
+                            <Form className="form" id="a-form">
+                                <h2 className="form_title title">Create Account</h2>
+                                <span className="form__span">or use displayName for registration</span>
+                                <Field className="form__input" name="username" type="text" placeholder="Email" onChange={handleChange} onBlur={handleBlur} />
+                                <ErrorMessage name="username" component="div" className="text-danger" />
+                                <Field className="form__input displayName" name="displayName" type="text" placeholder="Name" onChange={handleChange} onBlur={handleBlur} />
+                                <ErrorMessage name="displayName" component="div" className="text-danger" />
+                                <Field className="form__input password" name="password" type="password" placeholder="Password" onChange={handleChange} onBlur={handleBlur} />
+                                <ErrorMessage name="password" component="div" className="text-danger" />
+                                <button className="form__button button submit" type="submit" disabled={isSubmitting}>SIGN UP</button>
+                            </Form>
+                        )}
+                    </Formik>
+>>>>>>> origin/back-up
                 </div>
                 <div className={`b-container ${isSwitch && "is-txl"}`}>
                     <Formik

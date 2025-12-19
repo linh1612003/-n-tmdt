@@ -80,4 +80,8 @@ npm start
 
 Trang web sẽ được tự động mở ra bằng trình duyệt web mặc định của bạn
 
+<<<<<<< HEAD
 url homepage
+=======
+url homepage
+>>>>>>> origin/back-up

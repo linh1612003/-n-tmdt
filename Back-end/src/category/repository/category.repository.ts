@@ -11,6 +11,7 @@ export class CategoryRepository {
     private categoryModel: Model<Category>,
   ) {}
 
+<<<<<<< HEAD
   async findByAvailabilityStatus(availabilityStatus: string) {
     return await this.categoryModel.aggregate([
       {
@@ -30,6 +31,16 @@ export class CategoryRepository {
   async findById(categoryId: string) {
     return await this.categoryModel.findById(categoryId);
   }
+=======
+  async findById(categoryId: string) {
+    return await this.categoryModel.findById(categoryId);
+  }
+
+  async findByName(name: string) {
+    return await this.categoryModel.findOne({ name: name });
+  }
+
+>>>>>>> origin/back-up
   async getAll() {
     return await this.categoryModel.find();
   }
@@ -50,3 +61,8 @@ export class CategoryRepository {
     );
   }
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin/back-up

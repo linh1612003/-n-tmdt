@@ -10,11 +10,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
+<<<<<<< HEAD
 import { CheckEmailDto } from './dto/check-email.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { LoginUserDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+=======
+
+import { LoginUserDto } from './dto/login.dto';
+>>>>>>> origin/back-up
 import { GoogleAuthGuard } from './utils/GoogleAuthGuards';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
@@ -27,14 +32,24 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private jwtService: JwtService,
+<<<<<<< HEAD
   ) { }
 
   // Đặt các route cụ thể TRƯỚC route có parameter để tránh conflict
+=======
+  ) {}
+
+  @Get(':userId')
+  getUserById(@Param('userId') userId: string) {
+    return this.authService.getUserById(userId);
+  }
+>>>>>>> origin/back-up
   @Post('register')
   register(@Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
   }
 
+<<<<<<< HEAD
   @Post('check-email')
   checkEmailAndSendOtp(@Body() checkEmailDto: CheckEmailDto) {
     return this.authService.checkEmailAndSendOtp(checkEmailDto.email);
@@ -45,6 +60,8 @@ export class AuthController {
     return this.authService.verifyOtpAndRegister(verifyOtpDto);
   }
 
+=======
+>>>>>>> origin/back-up
   @Post('login')
   login(@Body() loginUser: LoginUserDto, @Res() res: Response) {
     return this.authService.login(loginUser, res);
@@ -86,6 +103,7 @@ export class AuthController {
     const refreshToken = req.cookies.refreshToken;
     return await this.authService.refreshToken(refreshToken);
   }
+<<<<<<< HEAD
 
   @Post('forgot-password')
   requestPasswordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
@@ -102,4 +120,6 @@ export class AuthController {
   getUserById(@Param('userId') userId: string) {
     return this.authService.getUserById(userId);
   }
+=======
+>>>>>>> origin/back-up
 }

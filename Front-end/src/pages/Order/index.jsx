@@ -81,6 +81,17 @@ const OrderPage = () => {
         if (paymentMethod === 'cash') {
             enqueueSnackbar("Đặt hàng thành công ", { variant: "success" })
             navigate('/success-page')
+<<<<<<< HEAD
+=======
+            try {
+                const res = await orderApi.payment(orderId, paymentMethod);
+                enqueueSnackbar("Success", { variant: "Success" })
+
+            } catch (error) {
+                console.error('Error fetching order:', error);
+                enqueueSnackbar("Có lỗi xảy ra khi thanh toán", { variant: "error" })
+            }
+>>>>>>> origin/back-up
         } else if (paymentMethod === 'vnpay') {
             try {
                 const res = await orderApi.payment(orderId, paymentMethod);

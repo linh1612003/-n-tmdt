@@ -1,19 +1,8 @@
-declare class ShippingInfoDto {
-    receiver: string;
-    phone: string;
-    address: string;
-    addressDetail: string;
-}
-declare class ProductOrderDto {
-    productId: string;
-    price: number;
-    quantity: number;
-    urlImage: string;
-}
+import { ProductOrder } from 'src/interface/product-order.interface';
+import { ShippingInfoDto } from './ShippingInfo.dto';
 export declare class CreateOrderDto {
     userId: string;
-    products: ProductOrderDto[];
+    products: ProductOrder[];
     shippingInfo?: ShippingInfoDto;
     isInCart?: Boolean;
 }
-export {};

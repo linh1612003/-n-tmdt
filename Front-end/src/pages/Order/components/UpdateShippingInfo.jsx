@@ -8,8 +8,20 @@ import orderApi from '../../../api/ordersApi';
 import userApi from '../../../api/userApi';
 
 const validationSchema = Yup.object().shape({
+<<<<<<< HEAD
     receiver: Yup.string().required('Vui lòng nhập tên người nhận'),
     phone: Yup.string().required('Vui lòng nhập số điện thoại'),
+=======
+    receiver: Yup.string()
+        .required('Vui lòng nhập tên người nhận')
+        .min(2, 'Tên người nhận phải có ít nhất 2 ký tự'),
+    phone: Yup.string()
+        .required('Vui lòng nhập số điện thoại')
+        .matches(
+            /^(0|\+84|84)[0-9]{9,10}$/,
+            'Số điện thoại không đúng định dạng. Vui lòng nhập số điện thoại Việt Nam (10 số bắt đầu bằng 0)'
+        ),
+>>>>>>> origin/back-up
     address: Yup.string().required('Vui lòng nhập địa chỉ'),
     addressDetail: Yup.string().required('Vui lòng nhập chi tiết địa chỉ'),
 });
@@ -18,6 +30,7 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
     const handleUpdate = async (values) => {
         try {
             const userId = localStorage.getItem('userId');
+<<<<<<< HEAD
             // Map phone thành contactPhone cho backend
             const payload = {
                 contactPhone: values.phone,
@@ -34,6 +47,15 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
         } catch (error) {
             console.error('Error updating shipping info:', error);
         }
+=======
+            const payload = values
+            const res = await orderApi.updateShippingInfo(userId,payload)
+        } catch (error) {
+            
+        }
+        setShippingInfo(values);
+        onClose();
+>>>>>>> origin/back-up
     };
 
     return (
@@ -42,7 +64,11 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
             validationSchema={validationSchema}
             onSubmit={handleUpdate}
         >
+<<<<<<< HEAD
             {({ values, handleChange, handleBlur, handleSubmit }) => (
+=======
+            {({ values, handleChange, handleBlur, handleSubmit, errors, touched }) => (
+>>>>>>> origin/back-up
                 <Form onSubmit={handleSubmit}>
                     <Box display="flex" flexDirection="column" gap={2}>
                         <TextField
@@ -52,6 +78,11 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+<<<<<<< HEAD
+=======
+                            error={touched.receiver && !!errors.receiver}
+                            helperText={touched.receiver && errors.receiver}
+>>>>>>> origin/back-up
                         />
                         <TextField
                             label="Số điện thoại"
@@ -60,6 +91,11 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+<<<<<<< HEAD
+=======
+                            error={touched.phone && !!errors.phone}
+                            helperText={touched.phone && errors.phone}
+>>>>>>> origin/back-up
                         />
                         <TextField
                             label="Địa chỉ"
@@ -68,6 +104,11 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+<<<<<<< HEAD
+=======
+                            error={touched.address && !!errors.address}
+                            helperText={touched.address && errors.address}
+>>>>>>> origin/back-up
                         />
                         <TextField
                             label="Chi tiết địa chỉ"
@@ -76,8 +117,15 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+<<<<<<< HEAD
                         />
                         <Button type="submit" variant="contained" color="black" style={{ borderRadius: '0px' }}>
+=======
+                            error={touched.addressDetail && !!errors.addressDetail}
+                            helperText={touched.addressDetail && errors.addressDetail}
+                        />
+                        <Button type="submit" variant="contained" color="black" style={{borderRadius:'0px'}}>
+>>>>>>> origin/back-up
                             Cập nhật
                         </Button>
                     </Box>

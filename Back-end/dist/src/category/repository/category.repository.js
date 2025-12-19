@@ -21,23 +21,11 @@ let CategoryRepository = class CategoryRepository {
     constructor(categoryModel) {
         this.categoryModel = categoryModel;
     }
-    async findByAvailabilityStatus(availabilityStatus) {
-        return await this.categoryModel.aggregate([
-            {
-                $match: { availabilityStatus: availabilityStatus },
-            },
-            {
-                $lookup: {
-                    from: 'types',
-                    localField: '_id',
-                    foreignField: 'categoryId',
-                    as: 'type',
-                },
-            },
-        ]);
-    }
     async findById(categoryId) {
         return await this.categoryModel.findById(categoryId);
+    }
+    async findByName(name) {
+        return await this.categoryModel.findOne({ name: name });
     }
     async getAll() {
         return await this.categoryModel.find();

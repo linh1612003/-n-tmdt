@@ -1,6 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ProductRepository } from '../repository/product.repository';
 import { CreateProductDto } from '../dto/createProduct.dto';
+<<<<<<< HEAD
+=======
+import { UpdateProductDto } from '../dto/UpdateProduct.dto';
+>>>>>>> origin/back-up
 import { Types } from 'mongoose';
 import { TypeService } from 'src/type/service/type.service';
 import { Product } from '../schema/product.shema';
@@ -86,10 +90,13 @@ export class ProductService {
   async getAllProducts() {
     return await this.productRepository.getAll();
   }
+<<<<<<< HEAD
 
   async searchProducts(searchTerm: string) {
     return await this.productRepository.searchProducts(searchTerm);
   }
+=======
+>>>>>>> origin/back-up
   async getProductById(productId: string) {
     const product = await this.productRepository.findById(productId);
     if (!product) {
@@ -134,6 +141,7 @@ export class ProductService {
     if (!filter.categoryId) {
       products = await this.productRepository.getAll();
     } else {
+<<<<<<< HEAD
       const types = await this.typeService.getTypesByCategoryId(
         filter.categoryId,
       );
@@ -141,13 +149,20 @@ export class ProductService {
       const typeIds = types.map((type) => type._id);
 
       products = await this.productRepository.getProductByTypeIds(typeIds);
+=======
+      products = await this.productRepository.getProductsByCategoryId(filter.categoryId);
+>>>>>>> origin/back-up
     }
 
     const totalProducts = products.length;
 
     const filteredProducts = products.filter((product) => {
       return (
+<<<<<<< HEAD
         (filter.typeId == null || product.typeId.toString() == filter.typeId) &&
+=======
+        (filter.categoryId == null || product.categoryId == filter.categoryId) &&
+>>>>>>> origin/back-up
         (filter.color == null || product.color == filter.color) &&
         (filter.keyCount == null || product.keyCount == filter.keyCount) &&
         (filter.multiLayout == null ||
@@ -213,16 +228,24 @@ export class ProductService {
 
   async updateProductById(
     productId: string,
+<<<<<<< HEAD
     updateProductDto: CreateProductDto,
   ) {
     // Lọc bỏ các phần tử rỗng trong mảng images nếu có
     if (updateProductDto.images && Array.isArray(updateProductDto.images)) {
       updateProductDto.images = updateProductDto.images.filter(link => link && link.trim() !== "");
     }
+=======
+    updateProductDto: UpdateProductDto,
+  ) {
+    console.log('Update product request:', JSON.stringify(updateProductDto, null, 2));
+    
+>>>>>>> origin/back-up
     const productExist = await this.productRepository.findById(productId);
     if (!productExist) {
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
     }
+<<<<<<< HEAD
     try {
       await this.productRepository.updateById(productId, updateProductDto);
       return {
@@ -231,6 +254,34 @@ export class ProductService {
     } catch (err) {
       throw new HttpException(
         'update product error',
+=======
+    
+    // Merge với dữ liệu cũ - chỉ cập nhật các field được gửi lên
+    const updateData: any = {
+      ...productExist.toObject(),
+      ...updateProductDto,
+    };
+    
+    // Lọc bỏ các phần tử rỗng trong mảng images nếu có
+    if (updateData.images && Array.isArray(updateData.images)) {
+      updateData.images = updateData.images.filter(link => link && link.trim() !== "");
+    }
+    
+    // Loại bỏ _id và __v khỏi updateData
+    delete updateData._id;
+    delete updateData.__v;
+    
+    try {
+      const updatedProduct = await this.productRepository.updateById(productId, updateData);
+      return {
+        message: 'update product success',
+        data: updatedProduct,
+      };
+    } catch (err) {
+      console.error('Error updating product:', err);
+      throw new HttpException(
+        err.message || 'update product error',
+>>>>>>> origin/back-up
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

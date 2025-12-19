@@ -1,10 +1,19 @@
 import { Box, makeStyles, Modal, Typography, TextField } from '@material-ui/core';
+<<<<<<< HEAD
 import { Button } from 'antd';
+=======
+import { Button, Form, Input } from 'antd';
+>>>>>>> origin/back-up
 import { enqueueSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
+=======
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+>>>>>>> origin/back-up
 import cartsApi from '../../../api/cartApi';
 import orderApi from '../../../api/ordersApi';
 import userApi from '../../../api/userApi';
@@ -102,6 +111,7 @@ const useStyles = makeStyles((theme) => ({
         left: '50%',
         transform: 'translate(-50%, -50%)',
     },
+<<<<<<< HEAD
     shippingModal: {
         position: 'absolute',
         width: 500,
@@ -121,6 +131,8 @@ const useStyles = makeStyles((theme) => ({
         gap: theme.spacing(2),
         marginTop: theme.spacing(2),
     },
+=======
+>>>>>>> origin/back-up
 }));
 
 function ProductInfo({ product = {} }) {
@@ -129,6 +141,7 @@ function ProductInfo({ product = {} }) {
     const userId = localStorage.getItem('userId');
     const promotionPercent = discountPercentage(originalPrice, salePrice);
     const [openModal, setOpenModal] = useState(false);
+<<<<<<< HEAD
     const [openShippingModal, setOpenShippingModal] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -143,6 +156,21 @@ function ProductInfo({ product = {} }) {
 
     useEffect(() => {
         if (!userId) {
+=======
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [userInfo, setUserInfo] = useState(null);
+    const [error, setError] = useState('');
+    const [openShippingModal, setOpenShippingModal] = useState(false);
+    const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(true);
+
+
+    // Fake data for test pay now
+
+    useEffect(() => {
+        if (!userId) {
+            setError('No user ID found in local storage');
+>>>>>>> origin/back-up
             setIsLoadingUserInfo(false);
             return;
         }
@@ -151,6 +179,7 @@ function ProductInfo({ product = {} }) {
                 setIsLoadingUserInfo(true);
                 const userInfo = await userApi.getInfo(userId);
                 setUserInfo(userInfo);
+<<<<<<< HEAD
                 // Khởi tạo form với thông tin hiện có
                 setShippingFormData({
                     receiver: userInfo.displayName || '',
@@ -160,12 +189,18 @@ function ProductInfo({ product = {} }) {
                 });
             } catch (err) {
                 console.error('Error fetching user info:', err);
+=======
+            } catch (error) {
+                console.error('Failed to fetch account info:', error);
+                setError('Failed to fetch account info');
+>>>>>>> origin/back-up
             } finally {
                 setIsLoadingUserInfo(false);
             }
         })();
     }, [userId]);
 
+<<<<<<< HEAD
     const shippingInfo = userInfo ? {
         receiver: userInfo.displayName || '',
         phone: userInfo.contactPhone || '',
@@ -173,6 +208,22 @@ function ProductInfo({ product = {} }) {
         addressDetail: userInfo.addressDetail || '',
         isInCart: false
     } : null;
+=======
+    const shippingInfoValidationSchema = Yup.object().shape({
+        receiver: Yup.string()
+            .min(2, 'Tên người nhận phải có ít nhất 2 ký tự')
+            .required('Vui lòng nhập tên người nhận'),
+        phone: Yup.string()
+            .matches(/^(0|\+84|84)[0-9]{9,10}$/, 'Số điện thoại không đúng định dạng. Ví dụ: 0123456789')
+            .required('Vui lòng nhập số điện thoại'),
+        address: Yup.string()
+            .min(1, 'Vui lòng nhập địa chỉ')
+            .required('Vui lòng nhập địa chỉ'),
+        addressDetail: Yup.string()
+            .min(1, 'Vui lòng nhập chi tiết địa chỉ')
+            .required('Vui lòng nhập chi tiết địa chỉ'),
+    });
+>>>>>>> origin/back-up
 
 
     // Payload add to cart 
@@ -187,7 +238,11 @@ function ProductInfo({ product = {} }) {
             return;
         }
         try {
+<<<<<<< HEAD
             await cartsApi.add(payload);
+=======
+            const req = await cartsApi.add(payload);
+>>>>>>> origin/back-up
             const action = addToCart({
                 id: product._id,
                 product,
@@ -195,20 +250,55 @@ function ProductInfo({ product = {} }) {
             });
             dispatch(action);
             enqueueSnackbar('Đã thêm vào giỏ hàng  ', { variant: 'success' });
+<<<<<<< HEAD
         } catch (err) {
             console.error('Add to cart failed:', err);
+=======
+        } catch (error) {
+            console.error('Add to cart failed:', error);
+>>>>>>> origin/back-up
             enqueueSnackbar('Đã xảy ra lỗi ! Vui lòng thử lại sau ', { variant: 'error' });
         }
     };
 
 
+<<<<<<< HEAD
     // Payload pay now - sẽ được tạo trong handleBuyNow
     // ============================================================================================================================
+=======
+    // Payload pay now
+    // ============================================================================================================================
+    const createOrderWithShippingInfo = async (shippingInfoData) => {
+        const price = salePrice;
+        const urlImage = images && images.length > 0 ? images[0] : '';
+        const products = [{ productId, price, quantity, urlImage }];
+        
+        const payloadPay = { userId, products, shippingInfo: shippingInfoData };
+        
+        try {
+            console.log('Creating order with payload:', payloadPay);
+            const req = await orderApi.add(payloadPay);
+            console.log('Order created:', req);
+            navigate(`/orders?id=${req.orderExist._id}`);
+        } catch (error) {
+            console.error('Error creating order:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                const errorMsg = error.response.data?.message || 'Đã xảy ra lỗi! Vui lòng thử lại sau.';
+                enqueueSnackbar(errorMsg, { variant: 'error' });
+            } else {
+                enqueueSnackbar('Đã xảy ra lỗi! Vui lòng thử lại sau.', { variant: 'error' });
+            }
+        }
+    };
+
+>>>>>>> origin/back-up
     const handleBuyNow = async () => {
         if (!userId) {
             setOpenModal(true);
             return;
         }
+<<<<<<< HEAD
         if (isLoadingUserInfo) {
             enqueueSnackbar('Đang tải thông tin người dùng, vui lòng đợi...', { variant: 'info' });
             return;
@@ -235,6 +325,61 @@ function ProductInfo({ product = {} }) {
             console.error('Error creating order:', error);
             const errorMessage = error?.response?.data?.message || error?.message || 'Đã xảy ra lỗi! Vui lòng thử lại sau.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
+=======
+        
+        // Đợi userInfo được load
+        if (isLoadingUserInfo) {
+            enqueueSnackbar('Đang tải thông tin...', { variant: 'info' });
+            return;
+        }
+        
+        // Kiểm tra userInfo có đầy đủ thông tin giao hàng không
+        if (userInfo && userInfo.displayName && userInfo.contactPhone && userInfo.address && userInfo.addressDetail) {
+            // Có đầy đủ thông tin, tạo order ngay
+            const shippingInfo = {
+                receiver: userInfo.displayName,
+                phone: userInfo.contactPhone,
+                address: userInfo.address,
+                addressDetail: userInfo.addressDetail,
+            };
+            await createOrderWithShippingInfo(shippingInfo);
+        } else {
+            // Thiếu thông tin, mở modal để nhập
+            setOpenShippingModal(true);
+        }
+    };
+
+    const handleShippingInfoSubmit = async (values, { setSubmitting }) => {
+        console.log('Submitting shipping info:', values);
+        try {
+            // Lưu thông tin giao hàng vào user account (nếu có API)
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                try {
+                    await orderApi.updateShippingInfo(userId, values);
+                    // Cập nhật userInfo local
+                    setUserInfo({
+                        ...userInfo,
+                        displayName: values.receiver,
+                        contactPhone: values.phone,
+                        address: values.address,
+                        addressDetail: values.addressDetail,
+                    });
+                } catch (error) {
+                    console.error('Error updating shipping info:', error);
+                    // Vẫn tiếp tục tạo order dù không lưu được vào account
+                }
+            }
+            
+            // Tạo order với thông tin giao hàng
+            await createOrderWithShippingInfo(values);
+            setOpenShippingModal(false);
+            setSubmitting(false);
+        } catch (error) {
+            console.error('Error submitting shipping info:', error);
+            setSubmitting(false);
+            enqueueSnackbar('Đã xảy ra lỗi! Vui lòng thử lại sau.', { variant: 'error' });
+>>>>>>> origin/back-up
         }
     };
     const handleCloseModal = () => {
@@ -242,6 +387,7 @@ function ProductInfo({ product = {} }) {
     };
     const handleNavigate = () => {
         navigate('/login')
+<<<<<<< HEAD
     };
     const handleCloseShippingModal = () => {
         setOpenShippingModal(false);
@@ -356,6 +502,9 @@ function ProductInfo({ product = {} }) {
         setOpenShippingModal(false);
         navigate('/account');
     };
+=======
+    }
+>>>>>>> origin/back-up
 
 
     return (
@@ -472,6 +621,7 @@ function ProductInfo({ product = {} }) {
                     </Box>
                 </div>
             </Modal>
+<<<<<<< HEAD
             <Modal
                 open={openShippingModal}
                 onClose={handleCloseShippingModal}
@@ -562,6 +712,131 @@ function ProductInfo({ product = {} }) {
                             Lưu và tiếp tục
                         </Button>
                     </Box>
+=======
+            
+            {/* Modal nhập thông tin giao hàng */}
+            <Modal
+                open={openShippingModal}
+                onClose={() => setOpenShippingModal(false)}
+                aria-labelledby='shipping-modal-title'
+                aria-describedby='shipping-modal-description'
+            >
+                <div className={classes.modal} style={{ width: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                    <Typography variant='h5' id='shipping-modal-title' style={{ fontFamily: 'monospace', marginBottom: '20px' }}>
+                        Thông tin giao hàng
+                    </Typography>
+                    <Formik
+                        initialValues={{
+                            receiver: userInfo?.displayName || '',
+                            phone: userInfo?.contactPhone || '',
+                            address: userInfo?.address || '',
+                            addressDetail: userInfo?.addressDetail || '',
+                        }}
+                        validationSchema={shippingInfoValidationSchema}
+                        onSubmit={handleShippingInfoSubmit}
+                        validateOnChange={true}
+                        validateOnBlur={true}
+                    >
+                        {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isSubmitting, isValid }) => {
+                            console.log('Form errors:', errors);
+                            console.log('Form isValid:', isValid);
+                            console.log('Form values:', values);
+                            
+                            return (
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    console.log('Form submitted');
+                                    handleSubmit(e);
+                                }}>
+                                    <Box display="flex" flexDirection="column" gap={2}>
+                                        <TextField
+                                            label="Tên người nhận"
+                                            name="receiver"
+                                            value={values.receiver}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            fullWidth
+                                            error={touched.receiver && !!errors.receiver}
+                                            helperText={touched.receiver && errors.receiver}
+                                            style={{ fontFamily: 'monospace' }}
+                                        />
+                                        <TextField
+                                            label="Số điện thoại"
+                                            name="phone"
+                                            value={values.phone}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            fullWidth
+                                            error={touched.phone && !!errors.phone}
+                                            helperText={touched.phone && errors.phone}
+                                            style={{ fontFamily: 'monospace' }}
+                                        />
+                                        <TextField
+                                            label="Địa chỉ"
+                                            name="address"
+                                            value={values.address}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            fullWidth
+                                            error={touched.address && !!errors.address}
+                                            helperText={touched.address && errors.address}
+                                            style={{ fontFamily: 'monospace' }}
+                                        />
+                                        <TextField
+                                            label="Chi tiết địa chỉ"
+                                            name="addressDetail"
+                                            value={values.addressDetail}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            fullWidth
+                                            multiline
+                                            rows={3}
+                                            error={touched.addressDetail && !!errors.addressDetail}
+                                            helperText={touched.addressDetail && errors.addressDetail}
+                                            style={{ fontFamily: 'monospace' }}
+                                        />
+                                    </Box>
+                                    {Object.keys(errors).length > 0 && (
+                                        <Box style={{ marginTop: '10px', color: 'red', fontSize: '14px' }}>
+                                            Vui lòng điền đầy đủ thông tin
+                                        </Box>
+                                    )}
+                                    <Box style={{ display: "flex", justifyContent: "space-between", marginTop: '20px' }}>
+                                        <Button 
+                                            type="button"
+                                            style={{ borderRadius: '0px', height: '32px', width: '100px', fontFamily: 'monospace' }} 
+                                            onClick={() => setOpenShippingModal(false)}
+                                        >
+                                            Hủy
+                                        </Button>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                console.log('Button clicked, calling handleSubmit');
+                                                handleSubmit(e);
+                                            }}
+                                            disabled={isSubmitting}
+                                            style={{ 
+                                                borderRadius: '0px', 
+                                                height: '32px', 
+                                                width: '100px', 
+                                                background: 'black', 
+                                                color: '#fff', 
+                                                fontFamily: 'monospace',
+                                                border: 'none',
+                                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                                opacity: isSubmitting ? 0.6 : 1
+                                            }}
+                                        >
+                                            {isSubmitting ? 'Đang xử lý...' : 'Xác nhận'}
+                                        </button>
+                                    </Box>
+                                </form>
+                            );
+                        }}
+                    </Formik>
+>>>>>>> origin/back-up
                 </div>
             </Modal>
         </Box>

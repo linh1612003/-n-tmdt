@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested, ArrayMinSize } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ProductOrder } from 'src/interface/product-order.interface';
@@ -42,6 +43,13 @@ class ProductOrderDto {
   @IsString()
   urlImage: string;
 }
+=======
+import { Optional } from '@nestjs/common';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ProductOrder } from 'src/interface/product-order.interface';
+import { ShippingInfoDto } from './ShippingInfo.dto';
+>>>>>>> origin/back-up
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -49,6 +57,7 @@ export class CreateOrderDto {
   userId: string;
 
   @IsNotEmpty()
+<<<<<<< HEAD
   @IsArray()
   @ArrayMinSize(1, { message: 'Phải có ít nhất 1 sản phẩm trong đơn hàng' })
   @ValidateNested({ each: true })
@@ -57,6 +66,11 @@ export class CreateOrderDto {
 
   @IsOptional()
   @IsObject()
+=======
+  products: ProductOrder[];
+
+  @IsOptional()
+>>>>>>> origin/back-up
   @ValidateNested()
   @Type(() => ShippingInfoDto)
   shippingInfo?: ShippingInfoDto;

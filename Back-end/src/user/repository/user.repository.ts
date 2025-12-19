@@ -9,13 +9,18 @@ export class UserRepository {
   constructor(
     @InjectModel(User.name)
     private UserModel: Model<User>,
+<<<<<<< HEAD
   ) { }
+=======
+  ) {}
+>>>>>>> origin/back-up
 
   async findById(userId: string) {
     return await this.UserModel.findById(userId);
   }
 
   async updateShippingInfo(userId: string, data: any) {
+<<<<<<< HEAD
     console.log('updateShippingInfo - userId:', userId);
     console.log('updateShippingInfo - data:', data);
     const updateData: any = {};
@@ -49,6 +54,17 @@ export class UserRepository {
     console.log('updateShippingInfo - result.addressDetail:', result?.addressDetail);
 
     return result;
+=======
+    return await this.UserModel.findByIdAndUpdate(
+      userId,
+      {
+        contactPhone: data.contactPhone,
+        address: data.address,
+        addressDetail: data.addressDetail,
+      },
+      { new: true },
+    );
+>>>>>>> origin/back-up
   }
 
   async findUserToUpdate(userId: string): Promise<User> {

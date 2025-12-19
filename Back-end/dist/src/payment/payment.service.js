@@ -28,8 +28,8 @@ const zaloConfig = {
     endpoint: 'https://sb-openapi.zalopay.vn/v2/create',
 };
 const vnpayConfig = {
-    vnp_TmnCode: 'UM6283IE',
-    vnp_HashSecret: '38QPRL6J9TW5D503MBDCBCCFB4JEE7N1',
+    vnp_TmnCode: 'Y9E4M2CY',
+    vnp_HashSecret: '1OP8TFMIIM6QOU5T0LID90XCCWHCIUA2',
     vnp_Url: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
     vnp_ReturnUrl: 'http://localhost:3000/vnpay-callback',
 };

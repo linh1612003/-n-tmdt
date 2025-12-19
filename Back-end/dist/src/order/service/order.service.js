@@ -16,97 +16,87 @@ exports.OrderService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("mongoose");
 const order_repository_1 = require("../repository/order.repository");
+const mongodb_1 = require("mongodb");
 const cart_service_1 = require("./../../cart/service/cart.service");
 const payment_service_1 = require("./../../payment/payment.service");
+const notification_service_1 = require("./../../notification/service/notification.service");
+const product_repository_1 = require("../../product/repository/product.repository");
 let OrderService = class OrderService {
-    constructor(paymentService, orderRepository, cartService) {
+    constructor(paymentService, orderRepository, cartService, notificationService, productRepository) {
         this.paymentService = paymentService;
         this.orderRepository = orderRepository;
         this.cartService = cartService;
+        this.notificationService = notificationService;
+        this.productRepository = productRepository;
     }
     async getAllOrders() {
         return await this.orderRepository.getAll();
     }
     async getOrderUser(userId) {
-        console.log('getOrderUser - userId received:', userId, 'type:', typeof userId);
-        if (!userId) {
-            throw new common_1.HttpException('UserId is required', common_1.HttpStatus.BAD_REQUEST);
-        }
-        const normalizedUserId = String(userId).trim();
-        if (!/^[0-9a-fA-F]{24}$/.test(normalizedUserId)) {
-            console.error('getOrderUser - Invalid userId format:', normalizedUserId);
-            throw new common_1.HttpException('Invalid userId format', common_1.HttpStatus.BAD_REQUEST);
-        }
-        let userIdObjectId;
-        try {
-            userIdObjectId = new mongoose_1.Types.ObjectId(normalizedUserId);
-        }
-        catch (error) {
-            console.error('getOrderUser - Error creating ObjectId:', error);
-            throw new common_1.HttpException('Invalid userId format', common_1.HttpStatus.BAD_REQUEST);
-        }
-        console.log('getOrderUser - converted ObjectId:', userIdObjectId.toString());
-        console.log('getOrderUser - requesting orders for userId:', normalizedUserId);
+        const userIdObjectId = new mongodb_1.ObjectId(userId);
         const orderUser = await this.orderRepository.findOrderUser(userIdObjectId);
-        console.log('getOrderUser - orders found from repository:', orderUser?.length || 0);
-        const targetUserIdStr = normalizedUserId.toLowerCase().trim();
-        const finalFilteredOrders = (orderUser || []).filter(order => {
-            if (!order || !order.userId) {
-                console.warn('getOrderUser - Order missing userId:', order?._id?.toString());
-                return false;
-            }
-            const orderUserIdStr = String(order.userId).trim().toLowerCase();
-            const matches = orderUserIdStr === targetUserIdStr;
-            if (!matches) {
-                console.error('getOrderUser - SECURITY WARNING: Order userId mismatch!', {
-                    orderId: order._id?.toString(),
-                    orderUserId: String(order.userId),
-                    targetUserId: normalizedUserId,
-                    orderUserIdNormalized: orderUserIdStr,
-                    targetUserIdNormalized: targetUserIdStr
-                });
-            }
-            return matches;
-        });
-        console.log('getOrderUser - final filtered orders:', finalFilteredOrders.length);
-        if (orderUser.length !== finalFilteredOrders.length) {
-            console.error('getOrderUser - WARNING: Some orders were filtered out in service!', {
-                original: orderUser.length,
-                filtered: finalFilteredOrders.length,
-                filteredOut: orderUser.length - finalFilteredOrders.length
-            });
-        }
-        if (finalFilteredOrders.length > 0) {
-            console.log('getOrderUser - Sample final orders userIds:');
-            finalFilteredOrders.slice(0, 3).forEach((order, index) => {
-                console.log(`  Final Order ${index + 1} userId:`, String(order.userId));
-            });
-        }
-        return finalFilteredOrders;
+        return orderUser;
     }
     async createOrder(createOrderDto) {
+        console.log('Creating order with data:', JSON.stringify(createOrderDto, null, 2));
         let totalAmount = 0;
         let productIds = [];
-        createOrderDto.products.forEach((product) => {
-            totalAmount += product.quantity * product.price;
-            productIds.push(product.productId);
-        });
+        const productsWithPrices = await Promise.all(createOrderDto.products.map(async (product) => {
+            try {
+                const productInfo = await this.productRepository.findById(product.productId.toString());
+                if (!productInfo) {
+                    console.error(`Product not found: ${product.productId}`);
+                    throw new common_1.HttpException(`Sản phẩm với ID ${product.productId} không tồn tại`, common_1.HttpStatus.NOT_FOUND);
+                }
+                totalAmount += product.quantity * product.price;
+                productIds.push(product.productId);
+                return {
+                    ...product,
+                    importPrice: productInfo.importPrice || 0,
+                };
+            }
+            catch (err) {
+                console.error('Error processing product:', err);
+                if (err instanceof common_1.HttpException) {
+                    throw err;
+                }
+                throw new common_1.HttpException(`Lỗi khi xử lý sản phẩm ${product.productId}: ${err.message}`, common_1.HttpStatus.BAD_REQUEST);
+            }
+        }));
         const userIdObject = new mongoose_1.Types.ObjectId(createOrderDto.userId);
-        const newOrder = { ...createOrderDto, userId: userIdObject, totalAmount };
+        const newOrder = {
+            ...createOrderDto,
+            products: productsWithPrices,
+            userId: userIdObject,
+            totalAmount
+        };
+        console.log('Order data to save:', JSON.stringify(newOrder, null, 2));
         try {
             if (createOrderDto.isInCart) {
                 await this.cartService.deleteCartByProductIdsAndUserId(createOrderDto.userId, productIds);
             }
             const orderExist = await this.orderRepository.create(newOrder);
+            try {
+                await this.notificationService.createNewOrderNotification(orderExist._id.toString(), {
+                    receiver: createOrderDto.shippingInfo?.receiver,
+                    totalAmount: totalAmount,
+                });
+            }
+            catch (error) {
+                console.error('Error creating notification:', error);
+            }
+            console.log('Order created successfully:', orderExist._id);
             return {
                 mesage: 'create order successfully',
                 orderExist,
             };
         }
         catch (err) {
-            console.error('Create order error:', err);
-            const errorMessage = err.message || 'Create order error';
-            throw new common_1.HttpException(errorMessage, common_1.HttpStatus.BAD_REQUEST);
+            console.error('Error creating order:', err);
+            if (err instanceof common_1.HttpException) {
+                throw err;
+            }
+            throw new common_1.HttpException(err.message || 'Create order error', common_1.HttpStatus.BAD_REQUEST);
         }
     }
     async getOrderById(orderId) {
@@ -242,6 +232,15 @@ let OrderService = class OrderService {
     async getTotalRevenue() {
         return await this.orderRepository.getTotalRevenue();
     }
+    async getTotalCost() {
+        return await this.orderRepository.getTotalCost();
+    }
+    async getRevenueAndProfit() {
+        return await this.orderRepository.getRevenueAndProfit();
+    }
+    async getRevenueAndProfitByDateRange(startDate, endDate) {
+        return await this.orderRepository.getRevenueAndProfitByDateRange(startDate, endDate);
+    }
 };
 exports.OrderService = OrderService;
 exports.OrderService = OrderService = __decorate([
@@ -249,6 +248,8 @@ exports.OrderService = OrderService = __decorate([
     __param(0, (0, common_1.Inject)((0, common_1.forwardRef)(() => payment_service_1.PaymentService))),
     __metadata("design:paramtypes", [payment_service_1.PaymentService,
         order_repository_1.OrderRepository,
-        cart_service_1.CartService])
+        cart_service_1.CartService,
+        notification_service_1.NotificationService,
+        product_repository_1.ProductRepository])
 ], OrderService);
 //# sourceMappingURL=order.service.js.map

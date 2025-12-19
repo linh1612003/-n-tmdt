@@ -10,7 +10,11 @@ import { UserRepository } from '../repository/user.repository';
 
 @Injectable()
 export class UserService {
+<<<<<<< HEAD
   constructor(private readonly userRepository: UserRepository) { }
+=======
+  constructor(private readonly userRepository: UserRepository) {}
+>>>>>>> origin/back-up
 
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.userRepository.findUserToUpdate(userId);
@@ -32,14 +36,18 @@ export class UserService {
   }
 
   async updateShippingInfo(userId: string, data: any) {
+<<<<<<< HEAD
     console.log('UserService - updateShippingInfo - userId:', userId);
     console.log('UserService - updateShippingInfo - data:', JSON.stringify(data, null, 2));
 
+=======
+>>>>>>> origin/back-up
     const existingUser = await this.userRepository.findById(userId);
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
 
+<<<<<<< HEAD
     console.log('UserService - existingUser before update:');
     console.log('  - address:', existingUser.address);
     console.log('  - addressDetail:', existingUser.addressDetail);
@@ -66,6 +74,14 @@ export class UserService {
       };
     } catch (err) {
       console.error('UserService - updateShippingInfo - error:', err);
+=======
+    try {
+      await this.userRepository.updateShippingInfo(userId, data);
+      return {
+        message: 'Update shipping info successfully',
+      };
+    } catch (err) {
+>>>>>>> origin/back-up
       throw new HttpException(
         'Update shipping info error',
         HttpStatus.INTERNAL_SERVER_ERROR,

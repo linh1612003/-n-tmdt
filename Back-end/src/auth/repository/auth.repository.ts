@@ -9,7 +9,11 @@ export class AuthRepository {
   constructor(
     @InjectModel(User.name)
     private UserModel: Model<User>,
+<<<<<<< HEAD
   ) { }
+=======
+  ) {}
+>>>>>>> origin/back-up
 
   async findById(userId: string) {
     return await this.UserModel.findById(userId);
@@ -68,6 +72,7 @@ export class AuthRepository {
   }
 
   async findByUserName(username: string) {
+<<<<<<< HEAD
     // Tìm kiếm case-insensitive để tránh lỗi do chữ hoa/thường
     // Escape các ký tự đặc biệt trong regex
     const escapedUsername = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -91,4 +96,10 @@ export class AuthRepository {
       { new: true },
     );
   }
+=======
+    return await this.UserModel.findOne({
+      username: username,
+    }).lean();
+  }
+>>>>>>> origin/back-up
 }

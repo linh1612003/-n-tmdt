@@ -17,6 +17,7 @@ const categoryApi = {
     },
 
     add(data){
+<<<<<<< HEAD
         const url = '/categories';
         return axiosClient.post(url,data)
     },
@@ -28,6 +29,19 @@ const categoryApi = {
     
     remove(id){
         const url = `/categories/${id}`;
+=======
+        const url = '/api/categories';
+        return axiosClient.post(url,data)
+    },
+
+    update(id, data){
+        const url = `/api/categories/${id}`;
+        return axiosClient.put(url,data)
+    },
+    
+    remove(id){
+        const url = `/api/categories/${id}`;
+>>>>>>> origin/back-up
         return axiosClient.delete(url)
     }
 }

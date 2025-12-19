@@ -7,9 +7,18 @@ import {
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { OrderRepository } from '../repository/order.repository';
+<<<<<<< HEAD
 import { CreateOrderDto } from '../dto/CreateOrder.dto';
 import { CartService } from './../../cart/service/cart.service';
 import { PaymentService } from './../../payment/payment.service';
+=======
+import { ObjectId } from 'mongodb';
+import { CreateOrderDto } from '../dto/CreateOrder.dto';
+import { CartService } from './../../cart/service/cart.service';
+import { PaymentService } from './../../payment/payment.service';
+import { NotificationService } from './../../notification/service/notification.service';
+import { ProductRepository } from 'src/product/repository/product.repository';
+>>>>>>> origin/back-up
 
 @Injectable()
 export class OrderService {
@@ -18,6 +27,11 @@ export class OrderService {
     private readonly paymentService: PaymentService,
     private orderRepository: OrderRepository,
     private cartService: CartService,
+<<<<<<< HEAD
+=======
+    private notificationService: NotificationService,
+    private productRepository: ProductRepository,
+>>>>>>> origin/back-up
   ) { }
 
   async getAllOrders() {
@@ -25,6 +39,7 @@ export class OrderService {
   }
 
   async getOrderUser(userId) {
+<<<<<<< HEAD
     console.log('getOrderUser - userId received:', userId, 'type:', typeof userId);
     
     if (!userId) {
@@ -111,6 +126,66 @@ export class OrderService {
     });
     const userIdObject = new Types.ObjectId(createOrderDto.userId);
     const newOrder = { ...createOrderDto, userId: userIdObject, totalAmount };
+=======
+    const userIdObjectId = new ObjectId(userId);
+    const orderUser = await this.orderRepository.findOrderUser(userIdObjectId);
+    return orderUser;
+  }
+
+  async createOrder(createOrderDto: CreateOrderDto) {
+    console.log('Creating order with data:', JSON.stringify(createOrderDto, null, 2));
+    
+    let totalAmount = 0;
+    let productIds = [];
+    
+    // Lấy thông tin product để lưu giá vốn và giá bán tại thời điểm đặt hàng
+    const productsWithPrices = await Promise.all(
+      createOrderDto.products.map(async (product) => {
+        try {
+          const productInfo = await this.productRepository.findById(
+            product.productId.toString()
+          );
+          
+          if (!productInfo) {
+            console.error(`Product not found: ${product.productId}`);
+            throw new HttpException(
+              `Sản phẩm với ID ${product.productId} không tồn tại`,
+              HttpStatus.NOT_FOUND,
+            );
+          }
+          
+          totalAmount += product.quantity * product.price;
+          productIds.push(product.productId);
+          
+          // Thêm importPrice vào product order
+          return {
+            ...product,
+            importPrice: productInfo.importPrice || 0,
+          };
+        } catch (err) {
+          console.error('Error processing product:', err);
+          if (err instanceof HttpException) {
+            throw err;
+          }
+          throw new HttpException(
+            `Lỗi khi xử lý sản phẩm ${product.productId}: ${err.message}`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      })
+    );
+    
+    const userIdObject = new Types.ObjectId(createOrderDto.userId);
+    const newOrder = { 
+      ...createOrderDto, 
+      products: productsWithPrices,
+      userId: userIdObject, 
+      totalAmount 
+    };
+    
+    console.log('Order data to save:', JSON.stringify(newOrder, null, 2));
+    
+>>>>>>> origin/back-up
     try {
       if (createOrderDto.isInCart) {
         await this.cartService.deleteCartByProductIdsAndUserId(
@@ -120,14 +195,44 @@ export class OrderService {
       }
 
       const orderExist = await this.orderRepository.create(newOrder);
+<<<<<<< HEAD
+=======
+      
+      // Tạo thông báo cho admin về đơn hàng mới
+      try {
+        await this.notificationService.createNewOrderNotification(
+          orderExist._id.toString(),
+          {
+            receiver: createOrderDto.shippingInfo?.receiver,
+            totalAmount: totalAmount,
+          },
+        );
+      } catch (error) {
+        console.error('Error creating notification:', error);
+        // Không throw error để không ảnh hưởng đến việc tạo order
+      }
+      
+      console.log('Order created successfully:', orderExist._id);
+>>>>>>> origin/back-up
       return {
         mesage: 'create order successfully',
         orderExist,
       };
     } catch (err) {
+<<<<<<< HEAD
       console.error('Create order error:', err);
       const errorMessage = err.message || 'Create order error';
       throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
+=======
+      console.error('Error creating order:', err);
+      if (err instanceof HttpException) {
+        throw err;
+      }
+      throw new HttpException(
+        err.message || 'Create order error',
+        HttpStatus.BAD_REQUEST,
+      );
+>>>>>>> origin/back-up
     }
   }
 
@@ -252,7 +357,11 @@ export class OrderService {
       );
     }
   }
+<<<<<<< HEAD
   async hasUserBoughtProduct(userId: Types.ObjectId, productId: string) {
+=======
+  async hasUserBoughtProduct(userId: ObjectId, productId: string) {
+>>>>>>> origin/back-up
     const data = { userId, productId, status: 'success' };
     const orderExist = await this.orderRepository.findOrderSuccess(data);
     return orderExist;
@@ -280,4 +389,19 @@ export class OrderService {
   async getTotalRevenue() {
     return await this.orderRepository.getTotalRevenue();
   }
+<<<<<<< HEAD
+=======
+
+  async getTotalCost() {
+    return await this.orderRepository.getTotalCost();
+  }
+
+  async getRevenueAndProfit() {
+    return await this.orderRepository.getRevenueAndProfit();
+  }
+
+  async getRevenueAndProfitByDateRange(startDate: Date, endDate: Date) {
+    return await this.orderRepository.getRevenueAndProfitByDateRange(startDate, endDate);
+  }
+>>>>>>> origin/back-up
 }

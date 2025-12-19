@@ -20,7 +20,10 @@ export declare class ProductRepository {
     getProductByTypeIds(typeIds: ObjectId[]): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>)[]>;
-    getProductsByCategoryId(categoryId: string): Promise<any[]>;
+    getProductsByCategoryId(categoryId: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
+        _id: unknown;
+    }>)[]>;
+    countProductsByCategoryId(categoryId: string): Promise<number>;
     updateImagesOfProduct(productId: string, urlFiles: string[]): Promise<import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>>;
@@ -33,7 +36,5 @@ export declare class ProductRepository {
     updateById(productId: string, createProductDto: CreateProductDto): Promise<import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>>;
-    searchProducts(searchTerm: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
-        _id: unknown;
-    }>)[]>;
+    updateProductsCategoryId(oldCategoryId: string, newCategoryId: string): Promise<import("mongoose").UpdateWriteOpResult>;
 }

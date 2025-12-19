@@ -18,11 +18,13 @@ const cart_module_1 = require("../cart/cart.module");
 const payment_module_1 = require("../payment/payment.module");
 const logging_middleware_1 = require("../middlewares/logging.middleware");
 const user_module_1 = require("../user/user.module");
+const notification_module_1 = require("../notification/notification.module");
+const product_module_1 = require("../product/product.module");
 let OrderModule = class OrderModule {
     configure(consumer) {
         consumer
             .apply(logging_middleware_1.VerifyTokenMiddleware)
-            .forRoutes({ path: 'orders/:orderId/shipping-info', method: common_1.RequestMethod.PUT }, { path: 'orders/:orderId/shipping-status', method: common_1.RequestMethod.PUT }, { path: 'orders/:orderId/status', method: common_1.RequestMethod.PUT }, { path: 'orders', method: common_1.RequestMethod.POST }, { path: 'orders/:userId/user', method: common_1.RequestMethod.GET });
+            .forRoutes({ path: 'orders/:orderId/shipping-info', method: common_1.RequestMethod.PUT }, { path: 'orders/:orderId/shipping-status', method: common_1.RequestMethod.PUT }, { path: 'orders/:orderId/status', method: common_1.RequestMethod.PUT }, { path: 'orders', method: common_1.RequestMethod.POST });
     }
 };
 exports.OrderModule = OrderModule;
@@ -33,6 +35,8 @@ exports.OrderModule = OrderModule = __decorate([
             mongoose_1.MongooseModule.forFeature([{ name: order_shema_1.Order.name, schema: order_shema_1.OrderSchema }]),
             cart_module_1.CartModule,
             user_module_1.UserModule,
+            notification_module_1.NotificationModule,
+            product_module_1.ProductModule,
         ],
         controllers: [order_controller_1.OrderController],
         providers: [order_service_1.OrderService, order_repository_1.OrderRepository, cart_service_1.CartService],

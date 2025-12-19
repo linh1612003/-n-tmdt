@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class VerifyTokenMiddleware implements NestMiddleware {
+<<<<<<< HEAD
   constructor(private readonly jwtService: JwtService) { }
 
   async use(req: Request, res: Response, next: NextFunction) {
@@ -16,12 +17,20 @@ export class VerifyTokenMiddleware implements NestMiddleware {
 
     if (!authHeader) {
       console.log('VerifyTokenMiddleware - No authorization header');
+=======
+  constructor(private readonly jwtService: JwtService) {}
+
+  async use(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+>>>>>>> origin/back-up
       throw new UnauthorizedException(
         'Bạn cần phải đăng nhập để thực hiện hành động này!',
       );
     }
 
     const token = authHeader.split(' ')[1];
+<<<<<<< HEAD
     console.log('VerifyTokenMiddleware - token:', token ? `Present (length: ${token.length})` : 'Missing');
     console.log('VerifyTokenMiddleware - token preview:', token ? `${token.substring(0, 20)}...` : 'N/A');
     console.log('VerifyTokenMiddleware - ACCESS_TOKEN_SECRET:', process.env.ACCESS_TOKEN_SECRET ? 'Set' : 'Not set');
@@ -62,6 +71,16 @@ export class VerifyTokenMiddleware implements NestMiddleware {
         console.error('VerifyTokenMiddleware - Unknown error:', error);
         throw new UnauthorizedException('Invalid token');
       }
+=======
+    try {
+      const verify = await this.jwtService.verifyAsync(token, {
+        secret: process.env.ACCESS_TOKEN_SECRET,
+      });
+      req.user = verify;
+      next();
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+>>>>>>> origin/back-up
     }
   }
 }

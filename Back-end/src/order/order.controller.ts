@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 import { Body, Controller, Get, Param, Post, Put, Req, ForbiddenException } from '@nestjs/common';
+=======
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+>>>>>>> origin/back-up
 import { OrderService } from './service/order.service';
 import { CreateOrderDto } from './dto/CreateOrder.dto';
 import { CreateCartDto } from 'src/cart/dto/CreateCart.dto';
 import { ShippingInfo } from './schema/order.shema';
+<<<<<<< HEAD
 import { Request } from 'express';
+=======
+>>>>>>> origin/back-up
 
 @Controller('orders')
 export class OrderController {
@@ -14,6 +21,7 @@ export class OrderController {
     return this.orderService.getAllOrders();
   }
 
+<<<<<<< HEAD
   @Get('revenue')
   async getTotalRevenue() {
     const totalRevenue = await this.orderService.getTotalRevenue();
@@ -43,6 +51,8 @@ export class OrderController {
     return this.orderService.getOrderUser(tokenUserIdStr);
   }
 
+=======
+>>>>>>> origin/back-up
   @Get(':orderId')
   getOrderById(@Param('orderId') orderId: string) {
     console.log("orderId :", orderId);
@@ -50,6 +60,7 @@ export class OrderController {
     return this.orderService.getOrderById(orderId);
   }
 
+<<<<<<< HEAD
   @Post('')
   async CreateOrder(@Body() createOrderDto: CreateOrderDto) {
     try {
@@ -77,6 +88,16 @@ export class OrderController {
       }
       throw error;
     }
+=======
+  @Get(':userId/user')
+  getOrderUser(@Param('userId') userId: string) {
+    return this.orderService.getOrderUser(userId);
+  }
+
+  @Post('')
+  CreateOrder(@Body() createOrderDto: CreateOrderDto) {
+    return this.orderService.createOrder(createOrderDto);
+>>>>>>> origin/back-up
   }
 
   @Put('/:orderId/status')
@@ -98,4 +119,25 @@ export class OrderController {
   ) {
     return this.orderService.updateShippingStatus(orderId, shippingStatus);
   }
+<<<<<<< HEAD
+=======
+
+  @Get('revenue')
+  async getTotalRevenue() {
+    const totalRevenue = await this.orderService.getTotalRevenue();
+    return { totalRevenue };
+  }
+
+  @Get('revenue-profit')
+  async getRevenueAndProfit(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const data = await this.orderService.getRevenueAndProfitByDateRange(start, end);
+      return data;
+    }
+    const data = await this.orderService.getRevenueAndProfit();
+    return data;
+  }
+>>>>>>> origin/back-up
 }

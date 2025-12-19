@@ -68,9 +68,6 @@ let ProductService = class ProductService {
     async getAllProducts() {
         return await this.productRepository.getAll();
     }
-    async searchProducts(searchTerm) {
-        return await this.productRepository.searchProducts(searchTerm);
-    }
     async getProductById(productId) {
         const product = await this.productRepository.findById(productId);
         if (!product) {
@@ -109,13 +106,11 @@ let ProductService = class ProductService {
             products = await this.productRepository.getAll();
         }
         else {
-            const types = await this.typeService.getTypesByCategoryId(filter.categoryId);
-            const typeIds = types.map((type) => type._id);
-            products = await this.productRepository.getProductByTypeIds(typeIds);
+            products = await this.productRepository.getProductsByCategoryId(filter.categoryId);
         }
         const totalProducts = products.length;
         const filteredProducts = products.filter((product) => {
-            return ((filter.typeId == null || product.typeId.toString() == filter.typeId) &&
+            return ((filter.categoryId == null || product.categoryId == filter.categoryId) &&
                 (filter.color == null || product.color == filter.color) &&
                 (filter.keyCount == null || product.keyCount == filter.keyCount) &&
                 (filter.multiLayout == null ||
@@ -169,21 +164,30 @@ let ProductService = class ProductService {
         }
     }
     async updateProductById(productId, updateProductDto) {
-        if (updateProductDto.images && Array.isArray(updateProductDto.images)) {
-            updateProductDto.images = updateProductDto.images.filter(link => link && link.trim() !== "");
-        }
+        console.log('Update product request:', JSON.stringify(updateProductDto, null, 2));
         const productExist = await this.productRepository.findById(productId);
         if (!productExist) {
             throw new common_1.HttpException('Product not found', common_1.HttpStatus.NOT_FOUND);
         }
+        const updateData = {
+            ...productExist.toObject(),
+            ...updateProductDto,
+        };
+        if (updateData.images && Array.isArray(updateData.images)) {
+            updateData.images = updateData.images.filter(link => link && link.trim() !== "");
+        }
+        delete updateData._id;
+        delete updateData.__v;
         try {
-            await this.productRepository.updateById(productId, updateProductDto);
+            const updatedProduct = await this.productRepository.updateById(productId, updateData);
             return {
                 message: 'update product success',
+                data: updatedProduct,
             };
         }
         catch (err) {
-            throw new common_1.HttpException('update product error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+            console.error('Error updating product:', err);
+            throw new common_1.HttpException(err.message || 'update product error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 };

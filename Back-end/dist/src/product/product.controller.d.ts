@@ -1,4 +1,5 @@
 import { CreateProductDto } from 'src/product/dto/CreateProduct.dto';
+import { UpdateProductDto } from 'src/product/dto/UpdateProduct.dto';
 import { ProductService } from 'src/product/service/product.service';
 export declare class ProductController {
     private readonly productService;
@@ -24,7 +25,10 @@ export declare class ProductController {
     deleteProductById(productId: string): Promise<{
         message: string;
     }>;
-    updateProductById(productId: string, updateProductDto: CreateProductDto): Promise<{
+    updateProductById(productId: string, updateProductDto: UpdateProductDto): Promise<{
         message: string;
+        data: import("mongoose").Document<unknown, {}, import("./schema/product.shema").Product> & import("./schema/product.shema").Product & Required<{
+            _id: unknown;
+        }>;
     }>;
 }

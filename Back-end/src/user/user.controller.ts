@@ -1,6 +1,7 @@
 import { Body, Controller, Param, Put } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import { UpdateUserDto } from './dto/update-user.Dto';
+<<<<<<< HEAD
 import { UserRepository } from './repository/user.repository';
 
 @Controller('users')
@@ -34,6 +35,12 @@ export class UserController {
       throw error;
     }
   }
+=======
+
+@Controller('users')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+>>>>>>> origin/back-up
 
   @Put(':userId')
   async updateUser(
@@ -42,4 +49,12 @@ export class UserController {
   ) {
     return this.userService.updateUser(userId, updateUserDto);
   }
+<<<<<<< HEAD
+=======
+
+  @Put(':userId/shipping-infor')
+  updateShippingInfo(@Param('userId') userId: string, @Body() data: any) {
+    return this.userService.updateShippingInfo(userId, data);
+  }
+>>>>>>> origin/back-up
 }

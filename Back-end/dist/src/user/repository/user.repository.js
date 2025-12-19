@@ -26,28 +26,11 @@ let UserRepository = class UserRepository {
         return await this.UserModel.findById(userId);
     }
     async updateShippingInfo(userId, data) {
-        console.log('updateShippingInfo - userId:', userId);
-        console.log('updateShippingInfo - data:', data);
-        const updateData = {};
-        if (data.contactPhone !== undefined && data.contactPhone !== null) {
-            updateData.contactPhone = data.contactPhone;
-        }
-        if (data.address !== undefined && data.address !== null) {
-            updateData.address = data.address;
-        }
-        if (data.addressDetail !== undefined && data.addressDetail !== null) {
-            updateData.addressDetail = data.addressDetail;
-        }
-        console.log('updateShippingInfo - updateData:', updateData);
-        if (Object.keys(updateData).length === 0) {
-            console.log('updateShippingInfo - No data to update');
-            return await this.UserModel.findById(userId);
-        }
-        const result = await this.UserModel.findByIdAndUpdate(userId, { $set: updateData }, { new: true, runValidators: true });
-        console.log('updateShippingInfo - result after update:', result);
-        console.log('updateShippingInfo - result.address:', result?.address);
-        console.log('updateShippingInfo - result.addressDetail:', result?.addressDetail);
-        return result;
+        return await this.UserModel.findByIdAndUpdate(userId, {
+            contactPhone: data.contactPhone,
+            address: data.address,
+            addressDetail: data.addressDetail,
+        }, { new: true });
     }
     async findUserToUpdate(userId) {
         const user = await this.UserModel.findById(userId)
