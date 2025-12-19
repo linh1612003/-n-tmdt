@@ -57,12 +57,21 @@ let ChatRepository = class ChatRepository {
             .populate('receiverId', 'displayName avaUrl role')
             .exec();
         return messages.map((msg) => {
-            if (msg.senderId && msg.senderId.role === 'admin') {
+            if (msg.senderId) {
                 const senderObj = msg.senderId.toObject ? msg.senderId.toObject() : msg.senderId;
-                msg.senderId = {
-                    ...senderObj,
-                    displayName: 'Admin',
-                };
+                if (msg.senderRole === 'chatbot') {
+                    msg.senderId = {
+                        ...senderObj,
+                        displayName: 'Chatbot',
+                        role: 'chatbot',
+                    };
+                }
+                else if (senderObj.role === 'admin') {
+                    msg.senderId = {
+                        ...senderObj,
+                        displayName: 'Admin',
+                    };
+                }
             }
             return msg;
         });

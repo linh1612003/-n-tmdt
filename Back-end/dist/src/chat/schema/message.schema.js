@@ -35,6 +35,14 @@ __decorate([
     (0, mongoose_1.Prop)({ default: 'user' }),
     __metadata("design:type", String)
 ], Message.prototype, "senderRole", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Array, default: [] }),
+    __metadata("design:type", Array)
+], Message.prototype, "quickReplies", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Object }),
+    __metadata("design:type", Object)
+], Message.prototype, "metadata", void 0);
 exports.Message = Message = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Message);

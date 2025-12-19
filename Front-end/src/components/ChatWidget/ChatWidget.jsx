@@ -28,6 +28,209 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
+// Function để render message với clickable links và format đẹp hơn
+const renderMessageWithLinks = (text) => {
+    if (!text) return text;
+
+    // Regex để tìm URL (http/https)
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+        if (urlRegex.test(part)) {
+            // Extract path để hiển thị ngắn gọn hơn
+            let displayText = '👉 Xem chi tiết';
+            let isProductLink = false;
+
+            if (part.includes('/products/')) {
+                isProductLink = true;
+                displayText = '🛍️ Xem sản phẩm';
+            }
+
+            return (
+                <a
+                    key={index}
+                    href={part}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        // Nếu là link localhost hoặc cùng domain, navigate trong cùng tab
+                        if (part.includes('localhost:3000') || part.includes(window.location.hostname)) {
+                            // Extract path từ URL
+                            let path = '';
+                            if (part.includes(window.location.origin)) {
+                                path = part.split(window.location.origin)[1];
+                            } else if (part.includes('localhost:3000')) {
+                                path = part.split('localhost:3000')[1];
+                            }
+
+                            if (path) {
+                                // Navigate trong cùng tab
+                                window.location.href = path;
+                            } else {
+                                window.open(part, '_blank');
+                            }
+                        } else {
+                            // Link ngoài, mở tab mới
+                            window.open(part, '_blank');
+                        }
+                    }}
+                    style={{
+                        display: 'inline-block',
+                        marginTop: '6px',
+                        marginBottom: '4px',
+                        padding: '8px 16px',
+                        backgroundColor: part.includes('/products/') ? '#1976d2' : '#4caf50',
+                        color: '#ffffff',
+                        textDecoration: 'none',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = part.includes('/products/') ? '#1565c0' : '#45a049';
+                        e.target.style.transform = 'translateY(-1px)';
+                        e.target.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = part.includes('/products/') ? '#1976d2' : '#4caf50';
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                    }}
+                >
+                    {displayText}
+                </a>
+            );
+        }
+        // Giữ nguyên text, preserve line breaks và emoji
+        const lines = part.split('\n');
+        return (
+            <span key={index} style={{ display: 'block' }}>
+                {lines.map((line, lineIndex) => (
+                    <React.Fragment key={lineIndex}>
+                        {line}
+                        {lineIndex < lines.length - 1 && <br />}
+                    </React.Fragment>
+                ))}
+            </span>
+        );
+    });
+};
+
+// Function để render message với product links được chèn ngay sau mỗi sản phẩm
+const renderMessageWithProductLinks = (text, productLinks) => {
+    if (!text) return text;
+    if (!productLinks || productLinks.length === 0) {
+        // Nếu không có productLinks, render bình thường
+        return renderMessageWithLinks(text);
+    }
+
+    // Loại bỏ URL và text hướng dẫn không cần thiết
+    let cleanedText = text
+        .replace(/https?:\/\/[^\s]+/g, '') // Loại bỏ URL
+        .replace(/🔗/g, '') // Loại bỏ icon link
+        .replace(/Anh\/chị có thể click vào link để xem chi tiết hoặc hỏi em về giá, tồn kho của sản phẩm cụ thể\.?/gi, '') // Loại bỏ text hướng dẫn
+        .trim();
+
+    // Chia text thành các dòng
+    const lines = cleanedText.split('\n');
+    const result = [];
+
+    lines.forEach((line, lineIndex) => {
+        // Kiểm tra xem dòng này có phải là sản phẩm không (dạng "1. Tên - Giá")
+        // Pattern: bắt đầu bằng số, dấu chấm, khoảng trắng, tên sản phẩm, dấu gạch ngang, giá (có số)
+        // Regex: số. tên - giá (giá phải có ít nhất một chữ số)
+        const trimmedLine = line.trim();
+        const productMatch = trimmedLine.match(/^(\d+)\.\s+.+\s*-\s*.+[\d.,]/);
+
+        if (productMatch) {
+            // Đây là dòng sản phẩm
+            const productIndex = parseInt(productMatch[1]) - 1; // Chuyển từ 1-based sang 0-based
+
+            // Thêm dòng text sản phẩm
+            result.push(
+                <React.Fragment key={`line-${lineIndex}`}>
+                    {line}
+                    <br />
+                </React.Fragment>
+            );
+
+            // Thêm link ngay sau dòng sản phẩm
+            if (productLinks && productLinks[productIndex]) {
+                const product = productLinks[productIndex];
+                result.push(
+                    <a
+                        key={`link-${lineIndex}`}
+                        href={product.url}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            // Extract path từ URL
+                            let path = '';
+                            if (product.url.includes(window.location.origin)) {
+                                path = product.url.split(window.location.origin)[1];
+                            } else if (product.url.includes('localhost:3000')) {
+                                path = product.url.split('localhost:3000')[1];
+                            }
+
+                            if (path) {
+                                window.location.href = path;
+                            } else {
+                                window.open(product.url, '_blank');
+                            }
+                        }}
+                        style={{
+                            display: 'inline-block',
+                            marginTop: '6px',
+                            marginBottom: '8px',
+                            padding: '6px 12px',
+                            backgroundColor: '#1976d2',
+                            color: '#ffffff',
+                            textDecoration: 'none',
+                            borderRadius: '6px',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            transition: 'all 0.2s ease',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1565c0';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#1976d2';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        }}
+                    >
+                        🛍️ Xem chi tiết
+                    </a>
+                );
+            }
+
+            // Thêm <br /> để xuống dòng cho sản phẩm tiếp theo (nếu có)
+            if (lineIndex < lines.length - 1) {
+                result.push(<br key={`br-after-${lineIndex}`} />);
+            }
+        } else {
+            // Đây là dòng text bình thường
+            result.push(
+                <React.Fragment key={`line-${lineIndex}`}>
+                    {line}
+                    {lineIndex < lines.length - 1 && <br />}
+                </React.Fragment>
+            );
+        }
+    });
+
+    return result;
+};
+
 const ChatWidget = () => {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([]);
@@ -43,7 +246,7 @@ const ChatWidget = () => {
     const messagesLoadedFromSocketRef = useRef(false); // Flag để biết socket đã load messages chưa
     const currentUserId = localStorage.getItem('userId');
     const userRole = localStorage.getItem('role');
-    
+
     // Kiểm tra xem có phải vừa mới đăng nhập không (trong vòng 10 giây)
     const isRecentlyLoggedIn = () => {
         const loginTime = localStorage.getItem('login_time');
@@ -79,13 +282,13 @@ const ChatWidget = () => {
 
         // Refresh unread count every 5 seconds - chỉ khi có token
         let errorCount = 0;
-        
+
         // Clear interval cũ nếu có
         if (unreadCountIntervalRef.current) {
             clearInterval(unreadCountIntervalRef.current);
             unreadCountIntervalRef.current = null;
         }
-        
+
         unreadCountIntervalRef.current = setInterval(async () => {
             const currentToken = localStorage.getItem('access_token');
             if (!currentToken) {
@@ -100,15 +303,15 @@ const ChatWidget = () => {
                 await loadUnreadCount();
                 errorCount = 0; // Reset error count nếu thành công
             } catch (error) {
-                const errorMessage = typeof error?.message === 'string' 
-                    ? error.message 
-                    : (typeof error?.message === 'object' 
-                        ? JSON.stringify(error.message) 
+                const errorMessage = typeof error?.message === 'string'
+                    ? error.message
+                    : (typeof error?.message === 'object'
+                        ? JSON.stringify(error.message)
                         : String(error?.message || ''));
-                
+
                 // Nếu là lỗi 401 (token hết hạn), dừng ngay lập tức
-                if (errorMessage.includes('authenticated') || 
-                    errorMessage.includes('401') || 
+                if (errorMessage.includes('authenticated') ||
+                    errorMessage.includes('401') ||
                     errorMessage.includes('hết hạn') ||
                     errorMessage.includes('Unauthorized')) {
                     errorCount++;
@@ -206,14 +409,14 @@ const ChatWidget = () => {
         } catch (error) {
             console.error('Failed to load admin info:', error);
             // Kiểm tra nếu lỗi 401 - token hết hạn
-            const errorMessage = typeof error?.message === 'string' 
-                ? error.message 
-                : (typeof error?.message === 'object' 
-                    ? JSON.stringify(error.message) 
+            const errorMessage = typeof error?.message === 'string'
+                ? error.message
+                : (typeof error?.message === 'object'
+                    ? JSON.stringify(error.message)
                     : String(error?.message || ''));
-            
-            if (errorMessage.includes('authenticated') || 
-                errorMessage.includes('401') || 
+
+            if (errorMessage.includes('authenticated') ||
+                errorMessage.includes('401') ||
                 errorMessage.includes('hết hạn') ||
                 errorMessage.includes('Unauthorized')) {
                 alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
@@ -252,14 +455,14 @@ const ChatWidget = () => {
             setUnreadCount(data.count || 0);
         } catch (error) {
             // Nếu lỗi 401, có thể token đã hết hạn - không log nhiều
-            const errorMessage = typeof error?.message === 'string' 
-                ? error.message 
-                : (typeof error?.message === 'object' 
-                    ? JSON.stringify(error.message) 
+            const errorMessage = typeof error?.message === 'string'
+                ? error.message
+                : (typeof error?.message === 'object'
+                    ? JSON.stringify(error.message)
                     : String(error?.message || ''));
-            
-            if (errorMessage.includes('authenticated') || 
-                errorMessage.includes('401') || 
+
+            if (errorMessage.includes('authenticated') ||
+                errorMessage.includes('401') ||
                 errorMessage.includes('hết hạn') ||
                 errorMessage.includes('Unauthorized')) {
                 setUnreadCount(0);
@@ -279,12 +482,12 @@ const ChatWidget = () => {
     const initializeSocket = (adminIdToJoin = null) => {
         const token = localStorage.getItem('access_token');
         const targetAdminId = adminIdToJoin || (adminInfo && adminInfo._id ? (adminInfo._id.toString ? adminInfo._id.toString() : adminInfo._id) : null);
-        
+
         if (!token || !targetAdminId) {
             console.warn('Cannot initialize socket: missing token or admin info', { hasToken: !!token, hasAdminId: !!targetAdminId });
             return;
         }
-        
+
         // Lưu adminId để dùng trong connect event
         const adminIdForJoin = targetAdminId;
 
@@ -434,7 +637,7 @@ const ChatWidget = () => {
                 setTimeout(() => {
                     scrollToBottom();
                 }, 100);
-                
+
                 // Nếu socket trả về rỗng, thử load từ REST API như backup
                 if (data.length === 0) {
                     console.log('ChatWidget: Socket returned empty array, trying REST API as backup...');
@@ -506,7 +709,7 @@ const ChatWidget = () => {
 
         const messageContent = newMessage.trim();
         const adminId = adminInfo._id.toString ? adminInfo._id.toString() : adminInfo._id;
-        
+
         // Optimistic update: Hiển thị tin nhắn của user ngay lập tức
         const tempUserMessage = {
             _id: `temp-${Date.now()}`,
@@ -525,7 +728,7 @@ const ChatWidget = () => {
             createdAt: new Date(),
             updatedAt: new Date(),
         };
-        
+
         // Thêm tin nhắn tạm vào danh sách
         setMessages(prev => [...prev, tempUserMessage]);
         setNewMessage('');
@@ -563,7 +766,7 @@ const ChatWidget = () => {
         setOpen(true);
         setLoading(true); // Set loading ngay khi mở
         setMessages([]); // Clear messages cũ để load lại từ đầu
-        
+
         // Load admin info (luôn load lại để đảm bảo có thông tin mới nhất)
         let currentAdminInfo = adminInfo;
         try {
@@ -584,7 +787,7 @@ const ChatWidget = () => {
             setLoading(false);
             return;
         }
-        
+
         // Load messages ngay lập tức sau khi có adminInfo
         // Load từ REST API ngay để hiển thị messages ngay lập tức
         // Socket messageHistory sẽ cập nhật sau nếu có messages mới hơn
@@ -598,7 +801,7 @@ const ChatWidget = () => {
             } catch (err) {
                 console.error('ChatWidget: Failed to mark messages as read on open', err);
             }
-            
+
             // Khởi tạo socket ngay nếu chưa có hoặc chưa connect
             // Để đảm bảo socket messageHistory được gọi sớm
             const adminId = currentAdminInfo._id.toString ? currentAdminInfo._id.toString() : currentAdminInfo._id;
@@ -610,7 +813,7 @@ const ChatWidget = () => {
                 console.log('ChatWidget: Socket already connected, emitting joinRoom with adminId:', adminId);
                 socket.emit('joinRoom', { otherUserId: adminId });
             }
-            
+
             // Load từ REST API ngay lập tức để hiển thị messages
             try {
                 const adminId = currentAdminInfo._id.toString ? currentAdminInfo._id.toString() : currentAdminInfo._id;
@@ -795,12 +998,12 @@ const ChatWidget = () => {
                                     const otherDisplayName = senderName;
                                     const otherAvatar = message.senderId?.avaUrl || '';
                                     const otherInitial = otherDisplayName.charAt(0).toUpperCase();
-                                    
+
                                     return (
                                         <ListItem
                                             key={messageId}
                                             className={`message-item ${isOwnMessage ? 'own-message' : 'other-message'}`}
-                                            style={{ 
+                                            style={{
                                                 padding: isOwnMessage ? '4px 0 4px 8px' : '4px 8px 4px 0',
                                                 paddingRight: isOwnMessage ? '0' : '8px',
                                                 paddingLeft: isOwnMessage ? '8px' : '0',
@@ -840,9 +1043,32 @@ const ChatWidget = () => {
                                                                 {senderName}
                                                             </Typography>
                                                         )}
-                                                        <Typography variant="body2">
-                                                            {message.content}
-                                                        </Typography>
+                                                        {/* Hiển thị message với product links được chèn ngay sau mỗi sản phẩm */}
+                                                        {message.metadata?.productLinks && message.metadata.productLinks.length > 0 ? (
+                                                            <Typography
+                                                                variant="body2"
+                                                                component="div"
+                                                                style={{
+                                                                    whiteSpace: 'pre-wrap',
+                                                                    wordBreak: 'break-word',
+                                                                    lineHeight: '1.6',
+                                                                }}
+                                                            >
+                                                                {renderMessageWithProductLinks(message.content, message.metadata.productLinks)}
+                                                            </Typography>
+                                                        ) : (
+                                                            <Typography
+                                                                variant="body2"
+                                                                component="div"
+                                                                style={{
+                                                                    whiteSpace: 'pre-wrap',
+                                                                    wordBreak: 'break-word',
+                                                                    lineHeight: '1.6',
+                                                                }}
+                                                            >
+                                                                {renderMessageWithLinks(message.content)}
+                                                            </Typography>
+                                                        )}
                                                         <Typography variant="caption" className="message-time" style={{ textAlign: 'right' }}>
                                                             {formatTime(message.createdAt)}
                                                         </Typography>

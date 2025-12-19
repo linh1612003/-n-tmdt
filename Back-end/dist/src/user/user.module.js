@@ -35,7 +35,7 @@ exports.UserModule = UserModule = __decorate([
         ],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService, user_repository_1.UserRepository],
-        exports: [mongoose_1.MongooseModule, user_repository_1.UserRepository],
+        exports: [mongoose_1.MongooseModule, user_repository_1.UserRepository, user_service_1.UserService],
     })
 ], UserModule);
 //# sourceMappingURL=user.module.js.map

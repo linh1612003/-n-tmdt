@@ -80,6 +80,30 @@ let ChatService = class ChatService {
     async getUserById(userId) {
         return this.userModel.findById(userId).exec();
     }
+    async createChatbotMessage(data, senderId) {
+        console.log('ChatService: Creating chatbot message', {
+            senderId,
+            receiverId: data.receiverId,
+            content: data.content,
+        });
+        const message = await this.chatRepository.createMessage({
+            senderId: new mongoose_1.Types.ObjectId(senderId),
+            receiverId: new mongoose_1.Types.ObjectId(data.receiverId),
+            content: data.content,
+            senderRole: 'chatbot',
+            isRead: false,
+            quickReplies: data.quickReplies,
+            metadata: data.metadata,
+        });
+        console.log('ChatService: Chatbot message created, fetching all messages', {
+            messageId: message._id,
+        });
+        const allMessages = await this.chatRepository.getMessagesBetweenUsers(senderId, data.receiverId);
+        console.log('ChatService: Retrieved messages', {
+            messageCount: allMessages?.length || 0,
+        });
+        return allMessages;
+    }
 };
 exports.ChatService = ChatService;
 exports.ChatService = ChatService = __decorate([

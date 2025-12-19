@@ -18,6 +18,60 @@ import {
 import SendIcon from '@material-ui/icons/Send';
 import './Chat.scss';
 
+// Function để render message với clickable links
+const renderMessageWithLinks = (text) => {
+    if (!text) return text;
+    
+    // Regex để tìm URL (http/https)
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, index) => {
+        if (urlRegex.test(part)) {
+            return (
+                <a
+                    key={index}
+                    href={part}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        // Nếu là link localhost hoặc cùng domain, navigate trong cùng tab
+                        if (part.includes('localhost:3000') || part.includes(window.location.hostname)) {
+                            // Extract path từ URL
+                            let path = '';
+                            if (part.includes(window.location.origin)) {
+                                path = part.split(window.location.origin)[1];
+                            } else if (part.includes('localhost:3000')) {
+                                path = part.split('localhost:3000')[1];
+                            }
+                            
+                            if (path) {
+                                // Navigate trong cùng tab
+                                window.location.href = path;
+                            } else {
+                                window.open(part, '_blank');
+                            }
+                        } else {
+                            // Link ngoài, mở tab mới
+                            window.open(part, '_blank');
+                        }
+                    }}
+                    style={{
+                        color: '#1976d2',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                        wordBreak: 'break-all',
+                    }}
+                >
+                    {part}
+                </a>
+            );
+        }
+        return <span key={index}>{part}</span>;
+    });
+};
+
 const Chat = ({ userId, userRole, otherUserId, otherUserName, otherUserAvatar }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
@@ -271,8 +325,8 @@ const Chat = ({ userId, userRole, otherUserId, otherUserName, otherUserAvatar })
                                                         {senderName}
                                                     </Typography>
                                                 )}
-                                                <Typography variant="body1">
-                                                    {message.content}
+                                                <Typography variant="body1" component="div">
+                                                    {renderMessageWithLinks(message.content)}
                                                 </Typography>
                                                 <Typography variant="caption" className="message-time" style={{ textAlign: 'right' }}>
                                                     {formatTime(message.createdAt)}

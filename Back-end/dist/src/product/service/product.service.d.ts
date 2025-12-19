@@ -15,6 +15,9 @@ export declare class ProductService {
     getAllProducts(): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>)[]>;
+    searchProducts(searchTerm: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
+        _id: unknown;
+    }>)[]>;
     getProductById(productId: string): Promise<import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>>;

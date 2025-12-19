@@ -68,6 +68,9 @@ let ProductService = class ProductService {
     async getAllProducts() {
         return await this.productRepository.getAll();
     }
+    async searchProducts(searchTerm) {
+        return await this.productRepository.searchProducts(searchTerm);
+    }
     async getProductById(productId) {
         const product = await this.productRepository.findById(productId);
         if (!product) {

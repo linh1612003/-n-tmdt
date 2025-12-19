@@ -33,4 +33,7 @@ export declare class ProductRepository {
     updateById(productId: string, createProductDto: CreateProductDto): Promise<import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>>;
+    searchProducts(searchTerm: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
+        _id: unknown;
+    }>)[]>;
 }

@@ -76,6 +76,42 @@ let ProductRepository = class ProductRepository {
             new: true,
         });
     }
+    async searchProducts(searchTerm) {
+        const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedTerm, 'i');
+        const normalizeVietnamese = (text) => {
+            const map = {
+                'a': '[aàáạảãâầấậẩẫăằắặẳẵ]',
+                'e': '[eèéẹẻẽêềếệểễ]',
+                'i': '[iìíịỉĩ]',
+                'o': '[oòóọỏõôồốộổỗơờớợởỡ]',
+                'u': '[uùúụủũưừứựửữ]',
+                'y': '[yỳýỵỷỹ]',
+                'd': '[dđ]',
+            };
+            return text.split('').map(char => {
+                const lower = char.toLowerCase();
+                return map[lower] || char;
+            }).join('');
+        };
+        const normalizedPattern = normalizeVietnamese(escapedTerm);
+        const diacriticRegex = new RegExp(normalizedPattern, 'i');
+        console.log('ProductRepository: Searching products with term:', searchTerm);
+        console.log('ProductRepository: Using diacritic-insensitive regex');
+        const results = await this.productModel.find({
+            $or: [
+                { name: { $regex: diacriticRegex } },
+                { description: { $regex: diacriticRegex } },
+                { descriptionFull: { $regex: diacriticRegex } },
+                { material: { $regex: diacriticRegex } },
+                { brand: { $regex: diacriticRegex } },
+                { style: { $regex: diacriticRegex } },
+                { origin: { $regex: diacriticRegex } },
+            ],
+        });
+        console.log('ProductRepository: Found products:', results.length);
+        return results;
+    }
 };
 exports.ProductRepository = ProductRepository;
 exports.ProductRepository = ProductRepository = __decorate([

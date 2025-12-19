@@ -18,12 +18,14 @@ const socket_io_1 = require("socket.io");
 const jwt_1 = require("@nestjs/jwt");
 const common_1 = require("@nestjs/common");
 const chat_service_1 = require("./services/chat.service");
+const chatbot_service_1 = require("./services/chatbot.service");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const user_schema_1 = require("../auth/schemas/user.schema");
 let ChatGateway = class ChatGateway {
-    constructor(chatService, jwtService, userModel) {
+    constructor(chatService, chatbotService, jwtService, userModel) {
         this.chatService = chatService;
+        this.chatbotService = chatbotService;
         this.jwtService = jwtService;
         this.userModel = userModel;
         this.connectedUsers = new Map();
@@ -155,6 +157,19 @@ let ChatGateway = class ChatGateway {
                     availableUsers: Array.from(this.connectedUsers.keys()),
                 });
             }
+            if (senderRole === 'member' || senderRole === 'user') {
+                try {
+                    const receiver = await this.userModel.findById(receiverIdString);
+                    if (receiver && receiver.role === 'admin') {
+                        setTimeout(async () => {
+                            await this.handleChatbotResponse(senderId, data.content);
+                        }, 500);
+                    }
+                }
+                catch (error) {
+                    console.error('ChatGateway: Error checking receiver role:', error);
+                }
+            }
             return messages;
         }
         catch (error) {
@@ -162,6 +177,77 @@ let ChatGateway = class ChatGateway {
             console.error('ChatGateway: Error stack:', error.stack);
             client.emit('error', {
                 message: 'Failed to send message',
+                error: error.message,
+            });
+        }
+    }
+    async handleChatbotResponse(userId, userMessage) {
+        try {
+            console.log('ChatGateway: Processing chatbot response', { userId, userMessage });
+            const chatbotResponse = await this.chatbotService.processMessage(userId, userMessage);
+            if (!chatbotResponse) {
+                console.log('ChatGateway: No chatbot response');
+                return;
+            }
+            const adminInfo = await this.chatService.getAdminUser();
+            const adminId = adminInfo._id.toString();
+            const chatbotMessages = await this.chatService.createChatbotMessage({
+                receiverId: userId,
+                content: chatbotResponse.content,
+                quickReplies: chatbotResponse.quickReplies,
+                metadata: chatbotResponse.metadata,
+            }, adminId);
+            console.log('ChatGateway: Chatbot message created', {
+                messageCount: chatbotMessages?.length || 0,
+            });
+            const userSocketId = this.connectedUsers.get(userId);
+            if (userSocketId) {
+                this.server.to(userSocketId).emit('newMessage', chatbotMessages);
+            }
+            if (chatbotResponse.metadata?.handoffRequested) {
+                const adminSocketId = this.connectedUsers.get(adminId);
+                if (adminSocketId) {
+                    this.server.to(adminSocketId).emit('handoffRequested', {
+                        userId,
+                        message: userMessage,
+                    });
+                }
+            }
+        }
+        catch (error) {
+            console.error('ChatGateway: Error handling chatbot response:', error);
+        }
+    }
+    async handleQuickReply(data, client) {
+        try {
+            const senderId = client.data.userId;
+            const senderRole = client.data.userRole;
+            console.log('ChatGateway: Received quickReply', {
+                senderId,
+                senderRole,
+                payload: data.payload,
+            });
+            const payloadToMessage = {
+                'CHECK_ORDER': 'Kiểm tra đơn hàng',
+                'VIEW_PRODUCTS': 'Xem sản phẩm',
+                'RETURN_POLICY': 'Chính sách đổi trả',
+                'HANDOFF': 'Gặp nhân viên',
+                'ORDER_TRACKING': 'Theo dõi vận chuyển',
+                'CONTACT_SUPPORT': 'Liên hệ CSKH',
+                'WARRANTY_POLICY': 'Chính sách bảo hành',
+            };
+            const messageContent = payloadToMessage[data.payload] || data.payload;
+            const adminInfo = await this.chatService.getAdminUser();
+            const adminId = adminInfo._id.toString();
+            await this.handleMessage({
+                receiverId: adminId,
+                content: messageContent,
+            }, client);
+        }
+        catch (error) {
+            console.error('ChatGateway: Error handling quick reply:', error);
+            client.emit('error', {
+                message: 'Failed to process quick reply',
                 error: error.message,
             });
         }
@@ -217,6 +303,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ChatGateway.prototype, "handleMessage", null);
 __decorate([
+    (0, websockets_1.SubscribeMessage)('quickReply'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __param(1, (0, websockets_1.ConnectedSocket)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, socket_io_1.Socket]),
+    __metadata("design:returntype", Promise)
+], ChatGateway.prototype, "handleQuickReply", null);
+__decorate([
     (0, websockets_1.SubscribeMessage)('joinRoom'),
     __param(0, (0, websockets_1.MessageBody)()),
     __param(1, (0, websockets_1.ConnectedSocket)()),
@@ -241,8 +335,9 @@ exports.ChatGateway = ChatGateway = __decorate([
         namespace: '/chat',
     }),
     (0, common_1.Injectable)(),
-    __param(2, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __param(3, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
     __metadata("design:paramtypes", [chat_service_1.ChatService,
+        chatbot_service_1.ChatbotService,
         jwt_1.JwtService,
         mongoose_2.Model])
 ], ChatGateway);

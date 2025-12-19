@@ -21,4 +21,13 @@ export declare class ChatService {
     getUserById(userId: string): Promise<import("mongoose").Document<unknown, {}, User> & User & {
         _id: Types.ObjectId;
     }>;
+    createChatbotMessage(data: {
+        receiverId: string;
+        content: string;
+        quickReplies?: Array<{
+            title: string;
+            payload: string;
+        }>;
+        metadata?: any;
+    }, senderId: string): Promise<import("../schema/message.schema").Message[]>;
 }
