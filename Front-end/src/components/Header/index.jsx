@@ -1,10 +1,11 @@
 import { Badge, Box, IconButton, Menu, MenuItem } from '@material-ui/core';
-import { AccountCircle, Search, ShoppingCart } from '@material-ui/icons';
+import { AccountCircle, Search, ShoppingCart, ArrowDropDown } from '@material-ui/icons';
 import 'boxicons';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import cartsApi from '../../api/cartApi';
+import categoryApi from '../../api/categoryApi';
 import logo from '../../assets/logo/logo.svg';
 import { logout } from '../../pages/Auth/userSlice';
 import SearchComponent from '../../pages/Product/components/Search';
@@ -20,11 +21,9 @@ function Header(props) {
     const dispatch = useDispatch();
     const [cartList, setCartList] = useState([]);
     const [userId, setUserId] = useState();
-    // Tính số lượng sản phẩm (items) còn hợp lệ trong giỏ của user hiện tại
-    // Chỉ đếm item còn quantity > 0 và còn product (đã xóa/thanh toán thì bỏ qua)
-    const cartItemsCount = (cartList || [])
-        .filter((item) => (item?.quantity || 0) > 0 && item?.product?.length > 0)
-        .length;
+    const cartItemsCount = useSelector(cartItemsCountSelector);
+    const [categories, setCategories] = useState([]);
+    const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
 
     useEffect(() => {
         const userId = localStorage.getItem('userId');
@@ -38,33 +37,30 @@ function Header(props) {
         }
     }, []);
 
-    const loadCartList = async () => {
+    useEffect(() => {
         if (!userId) {
             return;
         }
-        try {
-            const cartList = await cartsApi.getAll(userId);
-            setCartList(cartList || []);
-        } catch (error) {
-            console.log('Failed to fetch carts list', error);
-            setCartList([]);
-        }
-    };
-
-    useEffect(() => {
-        loadCartList();
-    }, [userId]);
-
-    // Reload cart khi navigate về trang chủ hoặc khi có thay đổi
-    useEffect(() => {
-        const handleFocus = () => {
-            if (userId) {
-                loadCartList();
+        (async () => {
+            try {
+                const cartList = await cartsApi.getAll(userId);
+                setCartList(cartList);
+            } catch (error) {
+                console.log('Failed to fetch carts list', error);
             }
-        };
-        window.addEventListener('focus', handleFocus);
-        return () => window.removeEventListener('focus', handleFocus);
+        })();
     }, [userId]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const categoryList = await categoryApi.getAll();
+                setCategories(categoryList);
+            } catch (error) {
+                console.log('Failed to fetch category list', error);
+            }
+        })();
+    }, []);
 
     const handleSearchClick = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -100,6 +96,19 @@ function Header(props) {
         navigate('/order-history');
     };
 
+    const handleCategoryClick = (e) => {
+        setCategoryAnchorEl(e.currentTarget);
+    };
+
+    const handleCategoryClose = () => {
+        setCategoryAnchorEl(null);
+    };
+
+    const handleCategorySelect = (categoryId) => {
+        navigate(`/products?categoryId=${categoryId}`);
+        handleCategoryClose();
+    };
+
     return (
         <div className='wrapper__header'>
             <a
@@ -119,30 +128,26 @@ function Header(props) {
                 >
                     SẢN PHẨM
                 </a>
+                <Box
+                    component="a"
+                    style={{ '--i': 2, cursor: 'pointer', display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
+                    onClick={handleCategoryClick}
+                >
+                    DANH MỤC
+                    <ArrowDropDown />
+                </Box>
                 <a
-                    style={{ '--i': 2 }}
+                    style={{ '--i': 3 }}
                     href='http://localhost:3000/products?promotion=true'
                 >
                     KHUYẾN MÃI
                 </a>
-                {/* <a
-                    style={{ '--i': 3 }}
-                    href='http://localhost:3000/products?_limit=16&_page=1&_sort=asc&categoryId=6749e63a24417ea8e0551c35'
-                >
-                    Pre-order
-                </a> */}
                 <a
                     style={{ '--i': 4 }}
                     href='/about'
                 >
                     VỀ CHÚNG TÔI
                 </a>
-                {/* <a
-                    style={{ '--i': 5 }}
-                    href='/blog'
-                >
-                    BLOG
-                </a> */}
             </nav>
 
             <div className='wrapper__header__social-media'>
@@ -198,7 +203,7 @@ function Header(props) {
                     <>
                         <a
                             style={{ '--i': 2 }}
-                            href='https://www.facebook.com/moc.thien.1401'
+                                href='https://www.facebook.com/moc.thien.1401'
                         >
                             <box-icon
                                 type='logo'
@@ -208,7 +213,7 @@ function Header(props) {
                         </a>
                         <a
                             style={{ '--i': 3 }}
-                            href='https://www.instagram.com/haniepham06?igsh=cHFmZG80eTY4Njh4&utm_source=qr'
+                                href='https://www.instagram.com/haniepham06?igsh=cHFmZG80eTY4Njh4&utm_source=qr'
                         >
                             <box-icon
                                 type='logo'
@@ -231,7 +236,7 @@ function Header(props) {
             </div>
 
             <div className={`search-dropdown ${isDropdownOpen ? 'active' : ''}`}>
-                <SearchComponent onClose={() => setIsDropdownOpen(false)} />
+                <SearchComponent />
             </div>
             <Menu
                 keepMounted
@@ -251,6 +256,30 @@ function Header(props) {
                 <MenuItem onClick={handleUserInfo}>Thông tin cá nhân</MenuItem>
                 <MenuItem onClick={handleShop}>Đơn mua</MenuItem>
                 <MenuItem onClick={handleLogoutClick}>Đăng xuất</MenuItem>
+            </Menu>
+            <Menu
+                keepMounted
+                anchorEl={categoryAnchorEl}
+                open={Boolean(categoryAnchorEl)}
+                onClose={handleCategoryClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                getContentAnchorEl={null}
+            >
+                {categories.map((category) => (
+                    <MenuItem
+                        key={category._id}
+                        onClick={() => handleCategorySelect(category._id)}
+                    >
+                        {category.name}
+                    </MenuItem>
+                ))}
             </Menu>
         </div>
     );

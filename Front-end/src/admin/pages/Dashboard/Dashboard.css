@@ -1,0 +1,50 @@
+.admin-dashboard {
+  font-family: 'monospace', sans-serif;
+}
+
+.kpi-card {
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.kpi-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .admin-dashboard > div:first-of-type {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .admin-dashboard > div:last-of-type {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard > div:first-of-type {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .kpi-value {
+    font-size: 24px;
+  }
+}
+

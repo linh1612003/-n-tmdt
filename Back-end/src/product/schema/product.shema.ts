@@ -47,6 +47,15 @@ export class Product extends Document {
 
   @Prop()
   typeId: string;
+
+  @Prop({ required: true })
+  categoryId: string;
+
+  @Prop()
+  quantity: number;
+
+  @Prop()
+  importPrice: number;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

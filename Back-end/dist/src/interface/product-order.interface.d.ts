@@ -4,4 +4,5 @@ export interface ProductOrder {
     urlImage: string;
     quantity: number;
     price: number;
+    importPrice?: number;
 }

@@ -17,9 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useSnackbar } from 'notistack';
 import userApi from '../../../api/userApi';
-import orderApi from '../../../api/ordersApi';
 import { logout, update } from '../../Auth/userSlice';
-import VietnamAddressField from '../../../components/form-controls/VietnamAddressField';
 
 const useStyles = makeStyles((theme) => ({
     wrapper: {
@@ -47,11 +45,11 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'center',
         width: '200px',
     },
-    wrapperButton: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: theme.spacing(1),
+    wrapperButton:{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: theme.spacing(1),
     },
     paper: {
         padding: theme.spacing(3),
@@ -68,8 +66,8 @@ function Account() {
     const userId = localStorage.getItem('userId');
     const [formData, setFormData] = useState({
         displayName: '',
-        address: '',
-        addressDetail: '',
+        address:'',
+        addressDetail:'',
         contactPhone: '',
     });
     const theme = useTheme();
@@ -104,65 +102,20 @@ function Account() {
 
     const handleUpdateUser = async (values, { setSubmitting }) => {
         try {
-            // Cập nhật displayName và các trường khác (nếu có)
-            const userUpdateData = {
-                displayName: values.displayName,
-                contactPhone: values.contactPhone,
-            };
-
-            // Cập nhật thông tin giao hàng (address, addressDetail, contactPhone)
-            const shippingUpdateData = {
-                contactPhone: values.contactPhone,
-                address: values.address,
-                addressDetail: values.addressDetail,
-            };
-
-            // Gọi cả 2 API để cập nhật tất cả thông tin
-            const promises = [];
-
-            // Cập nhật displayName và contactPhone qua userApi
-            if (userUpdateData.displayName) {
-                promises.push(
-                    userApi.update(userId, { displayName: userUpdateData.displayName })
-                        .catch(err => {
-                            console.error('Error updating displayName:', err);
-                            // Không throw để không chặn việc cập nhật shipping info
-                        })
-                );
-            }
-
-            // Cập nhật shipping info (contactPhone, address, addressDetail)
-            promises.push(
-                orderApi.updateShippingInfo(userId, shippingUpdateData)
-                    .catch(err => {
-                        console.error('Error updating shipping info:', err);
-                        throw err; // Throw để báo lỗi nếu không cập nhật được shipping info
-                    })
-            );
-
-            // Đợi tất cả các promise hoàn thành
-            await Promise.all(promises);
-
-            // Reload lại dữ liệu sau khi update
-            try {
-                const updatedUserData = await userApi.getInfo(userId);
-                setFormData(updatedUserData);
-            } catch (error) {
-                console.error('Error reloading user data:', error);
-            }
-
-            enqueueSnackbar('Cập nhật thông tin thành công!', { variant: 'success' });
+            const action = update ({ id: userId, ...values });
+            const resultAction = await dispatch(action);
+            unwrapResult(resultAction);
+            enqueueSnackbar('Update successfully !!!', { variant: 'success' });
+            navigate('/products');
         } catch (error) {
-            console.error('Error updating user:', error);
-            const errorMessage = error?.message || 'Không thể cập nhật thông tin. Vui lòng thử lại.';
-            enqueueSnackbar(errorMessage, { variant: 'error' });
+            enqueueSnackbar('Update successfully !!!', { variant: 'success' });
         }
         setSubmitting(false);
     };
 
     return (
         <Box className={classes.root}>
-            <Container style={{}}>
+            <Container style={{ }}>
                 <Paper
                     elevation={0}
                     className={classes.paper}
@@ -199,10 +152,15 @@ function Account() {
                                             />
                                         </Box>
                                         <Box className={classes.item}>
-                                            <Typography className={classes.name}>Địa chỉ (Tỉnh/TP - Quận/Huyện - Phường/Xã) </Typography>
-                                            <div className={classes.input}>
-                                                <VietnamAddressField name='address' />
-                                            </div>
+                                            <Typography className={classes.name}>Địa chỉ (Phường/Quận/Thành Phố) </Typography>
+                                            <Field
+                                                as={TextField}
+                                                name='address'
+                                                className={classes.input}
+                                                variant='outlined'
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                            />
                                         </Box>
                                         <Box className={classes.item}>
                                             <Typography className={classes.name}>
@@ -232,37 +190,37 @@ function Account() {
                                         </Box>
                                     </Form>
                                     <Box className={classes.wrapperButton}>
-                                        <Button
-                                            className={classes.button}
-                                            variant='contained'
-                                            color='primary'
-                                            type='submit'
-                                            style={{
-                                                marginRight: '10px',
-                                                background: 'black',
-                                                borderRadius: '0px',
-                                                fontFamily: 'monospace',
-                                            }}
-                                        >
-                                            Update
-                                        </Button>
-                                        <Button
-                                            className={classes.button}
-                                            variant='contained'
-                                            color='secondary'
-                                            onClick={handleLogout}
-                                            style={{
-                                                marginRight: '10px',
-                                                background: 'white',
-                                                color: 'black',
-                                                border: '1px solid black',
-                                                fontWeight: 'bold',
-                                                borderRadius: '0px',
-                                                fontFamily: 'monospace',
-                                            }}
-                                        >
-                                            Logout
-                                        </Button>
+                                    <Button
+                                        className={classes.button}
+                                        variant='contained'
+                                        color='primary'
+                                        type='submit'
+                                        style={{ 
+                                          marginRight: '10px', 
+                                          background: 'black' ,
+                                          borderRadius: '0px' ,
+                                          fontFamily: 'monospace',
+                                      }}
+                                    >
+                                        Update
+                                    </Button>
+                                    <Button
+                                        className={classes.button}
+                                        variant='contained'
+                                        color='secondary'
+                                        onClick={handleLogout}
+                                        style={{
+                                          marginRight: '10px',
+                                          background: 'white',
+                                          color: 'black',
+                                          border: '1px solid black',
+                                          fontWeight: 'bold',
+                                          borderRadius: '0px' ,
+                                          fontFamily: 'monospace',
+                                      }}
+                                    >
+                                        Logout
+                                    </Button>
                                     </Box>
                                 </Form>
                             )}

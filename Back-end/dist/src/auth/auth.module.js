@@ -14,11 +14,8 @@ const jwt_1 = require("@nestjs/jwt");
 const GoogleStrategy_1 = require("./utils/GoogleStrategy");
 const FaceBookStrategy_1 = require("./utils/FaceBookStrategy");
 const user_schema_1 = require("./schemas/user.schema");
-const otp_schema_1 = require("./schemas/otp.schema");
 const auth_service_1 = require("./services/auth.service");
-const email_service_1 = require("./services/email.service");
 const auth_repository_1 = require("./repository/auth.repository");
-const otp_repository_1 = require("./repository/otp.repository");
 const logging_middleware_1 = require("../middlewares/logging.middleware");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
 require('dotenv').config();
@@ -33,10 +30,7 @@ exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([
-                { name: user_schema_1.User.name, schema: user_schema_1.UserSchema },
-                { name: otp_schema_1.Otp.name, schema: otp_schema_1.OtpSchema },
-            ]),
+            mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
             jwt_1.JwtModule.register({
                 global: true,
                 secret: process.env.JWT_SECRET,
@@ -45,11 +39,9 @@ exports.AuthModule = AuthModule = __decorate([
         ],
         providers: [
             auth_service_1.AuthService,
-            email_service_1.EmailService,
             GoogleStrategy_1.GoogleStrategy,
             FaceBookStrategy_1.FacebookStrategy,
             auth_repository_1.AuthRepository,
-            otp_repository_1.OtpRepository,
             jwt_strategy_1.JwtStrategy,
         ],
         controllers: [auth_controller_1.AuthController],

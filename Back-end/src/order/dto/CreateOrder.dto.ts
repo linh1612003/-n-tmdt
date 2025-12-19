@@ -1,25 +1,8 @@
-import { IsBoolean, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Optional } from '@nestjs/common';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ProductOrder } from 'src/interface/product-order.interface';
-import { ShippingInfo } from 'src/interface/shipping-infor.interface';
-
-class ShippingInfoDto {
-  @IsNotEmpty()
-  @IsString()
-  receiver: string;
-
-  @IsNotEmpty()
-  @IsString()
-  phone: string;
-
-  @IsNotEmpty()
-  @IsString()
-  address: string;
-
-  @IsNotEmpty()
-  @IsString()
-  addressDetail: string;
-}
+import { ShippingInfoDto } from './ShippingInfo.dto';
 
 export class CreateOrderDto {
   @IsNotEmpty()
@@ -30,7 +13,6 @@ export class CreateOrderDto {
   products: ProductOrder[];
 
   @IsOptional()
-  @IsObject()
   @ValidateNested()
   @Type(() => ShippingInfoDto)
   shippingInfo?: ShippingInfoDto;

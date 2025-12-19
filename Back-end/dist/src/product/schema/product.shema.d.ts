@@ -15,6 +15,9 @@ export declare class Product extends Document {
     origin: string;
     warranty: string;
     typeId: string;
+    categoryId: string;
+    quantity: number;
+    importPrice: number;
 }
 export declare const ProductSchema: import("mongoose").Schema<Product, import("mongoose").Model<Product, any, any, any, Document<unknown, any, Product> & Product & Required<{
     _id: unknown;

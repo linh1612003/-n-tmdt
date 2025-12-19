@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './SearchComponent.scss';
 import { formatPrice } from '../../../../utils/common';
 
-function SearchComponent({ onClose }) {
+function SearchComponent() {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredProducts, setFilteredProducts] = useState([]);
@@ -32,10 +32,6 @@ function SearchComponent({ onClose }) {
     }, [searchTerm, products]);
 
     const handleProductClick = (productId) => {
-        setSearchTerm(''); // Xóa search term
-        if (onClose) {
-            onClose(); // Đóng dropdown từ Header
-        }
         navigate(`/products/${productId}`);
     };
 
@@ -52,18 +48,25 @@ function SearchComponent({ onClose }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {searchTerm && filteredProducts.length > 0 ? (
-                <ul className="search-component-results">
-                    {filteredProducts.map((product) => (
-                        <li key={product._id} className="search-component-item" onClick={() => handleProductClick(product._id)}>
-                            <img src={product.images[0]} alt={product.name} width="50" />
-                            <div style={{ fontWeight: 'bold', fontFamily: 'monospace' }}>{product.name}</div>
-                            {/* <div>{product.description}</div>
-                            <div>Giá gốc: {product.originalPrice}</div> */}
-                            <div style={{ fontWeight: 'bold', fontFamily: 'monospace' }}>Giá khuyến mãi: {formatPrice(product.salePrice)}</div>
-                        </li>
-                    ))}
-                </ul>
+            {searchTerm ? (
+                filteredProducts.length > 0 ? (
+                    <ul className="search-component-results">
+                        {filteredProducts.map((product) => (
+                            <li key={product._id} className="search-component-item" onClick={() => handleProductClick(product._id)}>
+                                <img src={product.images[0]} alt={product.name} width="50" />
+                                <div style={{ fontWeight: 'bold', fontFamily: 'monospace' }}>{product.name}</div>
+                                {/* <div>{product.description}</div>
+                                <div>Giá gốc: {product.originalPrice}</div> */}
+                                <div style={{ fontWeight: 'bold', fontFamily: 'monospace' }}>Giá khuyến mãi: {formatPrice(product.salePrice)}</div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="search-component-no-results">
+                        <p>Không tìm thấy sản phẩm nào với từ khóa "<strong>{searchTerm}</strong>"</p>
+                        <p className="search-component-suggestion">Vui lòng thử lại với từ khóa khác</p>
+                    </div>
+                )
             ) : (
                 <button className="search-component-button" onClick={handleSearchClick}>Tìm kiếm</button>
             )}

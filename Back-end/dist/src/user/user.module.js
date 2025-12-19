@@ -10,17 +10,11 @@ exports.UserModule = void 0;
 const common_1 = require("@nestjs/common");
 const user_controller_1 = require("./user.controller");
 const user_service_1 = require("./services/user.service");
-const logging_middleware_1 = require("../middlewares/logging.middleware");
 const user_schema_1 = require("../auth/schemas/user.schema");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_repository_1 = require("./repository/user.repository");
 const jwt_1 = require("@nestjs/jwt");
 let UserModule = class UserModule {
-    configure(consumer) {
-        consumer
-            .apply(logging_middleware_1.VerifyTokenMiddleware)
-            .forRoutes({ path: 'users/:userId/shipping-infor', method: common_1.RequestMethod.PUT }, { path: 'users/:userId', method: common_1.RequestMethod.PUT });
-    }
 };
 exports.UserModule = UserModule;
 exports.UserModule = UserModule = __decorate([
@@ -35,7 +29,7 @@ exports.UserModule = UserModule = __decorate([
         ],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService, user_repository_1.UserRepository],
-        exports: [mongoose_1.MongooseModule, user_repository_1.UserRepository, user_service_1.UserService],
+        exports: [mongoose_1.MongooseModule, user_repository_1.UserRepository],
     })
 ], UserModule);
 //# sourceMappingURL=user.module.js.map

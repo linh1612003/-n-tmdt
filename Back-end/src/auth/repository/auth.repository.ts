@@ -9,7 +9,7 @@ export class AuthRepository {
   constructor(
     @InjectModel(User.name)
     private UserModel: Model<User>,
-  ) { }
+  ) {}
 
   async findById(userId: string) {
     return await this.UserModel.findById(userId);
@@ -71,13 +71,5 @@ export class AuthRepository {
     return await this.UserModel.findOne({
       username: username,
     }).lean();
-  }
-
-  async updateUser(username: string, updateData: any) {
-    return await this.UserModel.findOneAndUpdate(
-      { username: username },
-      updateData,
-      { new: true },
-    );
   }
 }

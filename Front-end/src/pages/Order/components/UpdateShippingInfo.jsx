@@ -8,8 +8,15 @@ import orderApi from '../../../api/ordersApi';
 import userApi from '../../../api/userApi';
 
 const validationSchema = Yup.object().shape({
-    receiver: Yup.string().required('Vui lòng nhập tên người nhận'),
-    phone: Yup.string().required('Vui lòng nhập số điện thoại'),
+    receiver: Yup.string()
+        .required('Vui lòng nhập tên người nhận')
+        .min(2, 'Tên người nhận phải có ít nhất 2 ký tự'),
+    phone: Yup.string()
+        .required('Vui lòng nhập số điện thoại')
+        .matches(
+            /^(0|\+84|84)[0-9]{9,10}$/,
+            'Số điện thoại không đúng định dạng. Vui lòng nhập số điện thoại Việt Nam (10 số bắt đầu bằng 0)'
+        ),
     address: Yup.string().required('Vui lòng nhập địa chỉ'),
     addressDetail: Yup.string().required('Vui lòng nhập chi tiết địa chỉ'),
 });
@@ -18,22 +25,13 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
     const handleUpdate = async (values) => {
         try {
             const userId = localStorage.getItem('userId');
-            // Map phone thành contactPhone cho backend
-            const payload = {
-                contactPhone: values.phone,
-                address: values.address,
-                addressDetail: values.addressDetail,
-            };
-            await orderApi.updateShippingInfo(userId, payload);
-
-            // Cập nhật displayName nếu có thay đổi (cần lấy userInfo hiện tại để so sánh)
-            // Note: Có thể cần thêm logic để cập nhật displayName nếu cần
-
-            setShippingInfo(values);
-            onClose();
+            const payload = values
+            const res = await orderApi.updateShippingInfo(userId,payload)
         } catch (error) {
-            console.error('Error updating shipping info:', error);
+            
         }
+        setShippingInfo(values);
+        onClose();
     };
 
     return (
@@ -42,7 +40,7 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
             validationSchema={validationSchema}
             onSubmit={handleUpdate}
         >
-            {({ values, handleChange, handleBlur, handleSubmit }) => (
+            {({ values, handleChange, handleBlur, handleSubmit, errors, touched }) => (
                 <Form onSubmit={handleSubmit}>
                     <Box display="flex" flexDirection="column" gap={2}>
                         <TextField
@@ -52,6 +50,8 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+                            error={touched.receiver && !!errors.receiver}
+                            helperText={touched.receiver && errors.receiver}
                         />
                         <TextField
                             label="Số điện thoại"
@@ -60,6 +60,8 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+                            error={touched.phone && !!errors.phone}
+                            helperText={touched.phone && errors.phone}
                         />
                         <TextField
                             label="Địa chỉ"
@@ -68,6 +70,8 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+                            error={touched.address && !!errors.address}
+                            helperText={touched.address && errors.address}
                         />
                         <TextField
                             label="Chi tiết địa chỉ"
@@ -76,8 +80,10 @@ function UpdateShippingInfo({ shippingInfo, setShippingInfo, onClose }) {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             fullWidth
+                            error={touched.addressDetail && !!errors.addressDetail}
+                            helperText={touched.addressDetail && errors.addressDetail}
                         />
-                        <Button type="submit" variant="contained" color="black" style={{ borderRadius: '0px' }}>
+                        <Button type="submit" variant="contained" color="black" style={{borderRadius:'0px'}}>
                             Cập nhật
                         </Button>
                     </Box>

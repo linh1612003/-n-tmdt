@@ -1,13 +1,18 @@
 import { Types } from 'mongoose';
 import { OrderRepository } from '../repository/order.repository';
+import { ObjectId } from 'mongodb';
 import { CreateOrderDto } from '../dto/CreateOrder.dto';
 import { CartService } from './../../cart/service/cart.service';
 import { PaymentService } from './../../payment/payment.service';
+import { NotificationService } from './../../notification/service/notification.service';
+import { ProductRepository } from 'src/product/repository/product.repository';
 export declare class OrderService {
     private readonly paymentService;
     private orderRepository;
     private cartService;
-    constructor(paymentService: PaymentService, orderRepository: OrderRepository, cartService: CartService);
+    private notificationService;
+    private productRepository;
+    constructor(paymentService: PaymentService, orderRepository: OrderRepository, cartService: CartService, notificationService: NotificationService, productRepository: ProductRepository);
     getAllOrders(): Promise<(import("mongoose").Document<unknown, {}, import("../schema/order.shema").Order> & import("../schema/order.shema").Order & {
         _id: Types.ObjectId;
     })[]>;
@@ -66,7 +71,7 @@ export declare class OrderService {
     updateShippingStatus(orderId: string, shippingStatus: string): Promise<{
         mesage: string;
     }>;
-    hasUserBoughtProduct(userId: Types.ObjectId, productId: string): Promise<(import("mongoose").Document<unknown, {}, import("../schema/order.shema").Order> & import("../schema/order.shema").Order & {
+    hasUserBoughtProduct(userId: ObjectId, productId: string): Promise<(import("mongoose").Document<unknown, {}, import("../schema/order.shema").Order> & import("../schema/order.shema").Order & {
         _id: Types.ObjectId;
     })[]>;
     updatePaymentStatusVNPay(orderId: string, paymentStatus: string): Promise<{
@@ -77,4 +82,18 @@ export declare class OrderService {
     }>;
     findOrderIdByVNPayRef(txnRef: string): Promise<Types.ObjectId>;
     getTotalRevenue(): Promise<any>;
+    getTotalCost(): Promise<number>;
+    getRevenueAndProfit(): Promise<{
+        totalRevenue: number;
+        totalCost: number;
+        profit: number;
+    }>;
+    getRevenueAndProfitByDateRange(startDate: Date, endDate: Date): Promise<{
+        totalRevenue: number;
+        totalCost: number;
+        profit: number;
+        orderCount: number;
+        startDate: Date;
+        endDate: Date;
+    }>;
 }

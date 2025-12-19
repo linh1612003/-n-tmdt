@@ -21,13 +21,16 @@ let CategoryController = class CategoryController {
         this.categoryService = categoryService;
     }
     createCategory(createCategoryDto) {
+        console.log('Received createCategory request:', JSON.stringify(createCategoryDto, null, 2));
+        console.log('createCategoryDto type:', typeof createCategoryDto);
+        console.log('createCategoryDto keys:', Object.keys(createCategoryDto));
         return this.categoryService.createCategory(createCategoryDto);
     }
     getAllCategory() {
-        return this.categoryService.getAllCategory();
+        return this.categoryService.getAllCategories();
     }
-    getCategoryByAvailabilityStatus(availabilityStatus) {
-        return this.categoryService.getCategoryByAvailabilityStatus(availabilityStatus);
+    ensureOtherCategory() {
+        return this.categoryService.ensureOtherCategoryExists();
     }
     deleteCategory(categoryId) {
         return this.categoryService.deleteCategory(categoryId);
@@ -51,12 +54,11 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CategoryController.prototype, "getAllCategory", null);
 __decorate([
-    (0, common_1.Get)(':availabilityStatus'),
-    __param(0, (0, common_1.Param)('availabilityStatus')),
+    (0, common_1.Post)('ensure-other'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], CategoryController.prototype, "getCategoryByAvailabilityStatus", null);
+], CategoryController.prototype, "ensureOtherCategory", null);
 __decorate([
     (0, common_1.Delete)(':categoryId'),
     __param(0, (0, common_1.Param)('categoryId')),

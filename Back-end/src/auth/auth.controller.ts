@@ -10,11 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { CheckEmailDto } from './dto/check-email.dto';
-import { VerifyOtpDto } from './dto/verify-otp.dto';
+
 import { LoginUserDto } from './dto/login.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GoogleAuthGuard } from './utils/GoogleAuthGuards';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
@@ -36,16 +33,6 @@ export class AuthController {
   @Post('register')
   register(@Body() registerUserDto: RegisterUserDto) {
     return this.authService.register(registerUserDto);
-  }
-
-  @Post('check-email')
-  checkEmailAndSendOtp(@Body() checkEmailDto: CheckEmailDto) {
-    return this.authService.checkEmailAndSendOtp(checkEmailDto.email);
-  }
-
-  @Post('verify-otp')
-  verifyOtpAndRegister(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.authService.verifyOtpAndRegister(verifyOtpDto);
   }
 
   @Post('login')
@@ -88,15 +75,5 @@ export class AuthController {
   async refreshToken(@Req() req: Request) {
     const refreshToken = req.cookies.refreshToken;
     return await this.authService.refreshToken(refreshToken);
-  }
-
-  @Post('forgot-password')
-  requestPasswordReset(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.authService.requestPasswordReset(forgotPasswordDto);
-  }
-
-  @Post('reset-password')
-  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto);
   }
 }

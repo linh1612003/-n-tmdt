@@ -23,34 +23,15 @@ let OrderController = class OrderController {
     getAllOrders() {
         return this.orderService.getAllOrders();
     }
-    async getTotalRevenue() {
-        const totalRevenue = await this.orderService.getTotalRevenue();
-        return { totalRevenue };
-    }
-    getOrderUser(userId, req) {
-        const tokenUserId = req.user?.userId;
-        if (!tokenUserId) {
-            throw new common_1.ForbiddenException('Không tìm thấy thông tin người dùng từ token');
-        }
-        const tokenUserIdStr = String(tokenUserId).trim();
-        const paramUserIdStr = String(userId).trim();
-        if (tokenUserIdStr !== paramUserIdStr) {
-            throw new common_1.ForbiddenException('Bạn không có quyền xem đơn hàng của người dùng khác');
-        }
-        return this.orderService.getOrderUser(tokenUserIdStr);
-    }
     getOrderById(orderId) {
         console.log("orderId :", orderId);
         return this.orderService.getOrderById(orderId);
     }
-    async CreateOrder(createOrderDto) {
-        try {
-            return await this.orderService.createOrder(createOrderDto);
-        }
-        catch (error) {
-            console.error('Error in CreateOrder controller:', error);
-            throw error;
-        }
+    getOrderUser(userId) {
+        return this.orderService.getOrderUser(userId);
+    }
+    CreateOrder(createOrderDto) {
+        return this.orderService.createOrder(createOrderDto);
     }
     updateStatus(orderId, paymentMethod) {
         return this.orderService.updatePaymentStatus(orderId, paymentMethod);
@@ -61,6 +42,20 @@ let OrderController = class OrderController {
     updateShippingStatus(orderId, shippingStatus) {
         return this.orderService.updateShippingStatus(orderId, shippingStatus);
     }
+    async getTotalRevenue() {
+        const totalRevenue = await this.orderService.getTotalRevenue();
+        return { totalRevenue };
+    }
+    async getRevenueAndProfit(startDate, endDate) {
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const data = await this.orderService.getRevenueAndProfitByDateRange(start, end);
+            return data;
+        }
+        const data = await this.orderService.getRevenueAndProfit();
+        return data;
+    }
 };
 exports.OrderController = OrderController;
 __decorate([
@@ -70,20 +65,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "getAllOrders", null);
 __decorate([
-    (0, common_1.Get)('revenue'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], OrderController.prototype, "getTotalRevenue", null);
-__decorate([
-    (0, common_1.Get)(':userId/user'),
-    __param(0, (0, common_1.Param)('userId')),
-    __param(1, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
-], OrderController.prototype, "getOrderUser", null);
-__decorate([
     (0, common_1.Get)(':orderId'),
     __param(0, (0, common_1.Param)('orderId')),
     __metadata("design:type", Function),
@@ -91,11 +72,18 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "getOrderById", null);
 __decorate([
+    (0, common_1.Get)(':userId/user'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrderController.prototype, "getOrderUser", null);
+__decorate([
     (0, common_1.Post)(''),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [CreateOrder_dto_1.CreateOrderDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], OrderController.prototype, "CreateOrder", null);
 __decorate([
     (0, common_1.Put)('/:orderId/status'),
@@ -121,6 +109,20 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "updateShippingStatus", null);
+__decorate([
+    (0, common_1.Get)('revenue'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], OrderController.prototype, "getTotalRevenue", null);
+__decorate([
+    (0, common_1.Get)('revenue-profit'),
+    __param(0, (0, common_1.Query)('startDate')),
+    __param(1, (0, common_1.Query)('endDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], OrderController.prototype, "getRevenueAndProfit", null);
 exports.OrderController = OrderController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [order_service_1.OrderService])

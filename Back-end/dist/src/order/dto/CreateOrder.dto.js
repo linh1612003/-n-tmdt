@@ -12,28 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateOrderDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
-class ShippingInfoDto {
-}
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], ShippingInfoDto.prototype, "receiver", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], ShippingInfoDto.prototype, "phone", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], ShippingInfoDto.prototype, "address", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], ShippingInfoDto.prototype, "addressDetail", void 0);
+const ShippingInfo_dto_1 = require("./ShippingInfo.dto");
 class CreateOrderDto {
 }
 exports.CreateOrderDto = CreateOrderDto;
@@ -48,10 +27,9 @@ __decorate([
 ], CreateOrderDto.prototype, "products", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsObject)(),
     (0, class_validator_1.ValidateNested)(),
-    (0, class_transformer_1.Type)(() => ShippingInfoDto),
-    __metadata("design:type", ShippingInfoDto)
+    (0, class_transformer_1.Type)(() => ShippingInfo_dto_1.ShippingInfoDto),
+    __metadata("design:type", ShippingInfo_dto_1.ShippingInfoDto)
 ], CreateOrderDto.prototype, "shippingInfo", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),

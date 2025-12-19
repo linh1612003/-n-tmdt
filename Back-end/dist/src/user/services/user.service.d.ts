@@ -9,10 +9,5 @@ export declare class UserService {
     }>;
     updateShippingInfo(userId: string, data: any): Promise<{
         message: string;
-        user: {
-            address: string;
-            addressDetail: string;
-            contactPhone: string;
-        };
     }>;
 }

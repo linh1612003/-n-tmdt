@@ -16,17 +16,20 @@ export class CategoryController {
 
   @Post('')
   createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+    console.log('Received createCategory request:', JSON.stringify(createCategoryDto, null, 2));
+    console.log('createCategoryDto type:', typeof createCategoryDto);
+    console.log('createCategoryDto keys:', Object.keys(createCategoryDto));
     return this.categoryService.createCategory(createCategoryDto);
   }
 
   @Get('')
   getAllCategory() {
-    return this.categoryService.getAllCategory();
+    return this.categoryService.getAllCategories();
   }
-  
-  @Get(':availabilityStatus')
-  getCategoryByAvailabilityStatus(@Param('availabilityStatus') availabilityStatus: string) {
-    return this.categoryService.getCategoryByAvailabilityStatus(availabilityStatus);
+
+  @Post('ensure-other')
+  ensureOtherCategory() {
+    return this.categoryService.ensureOtherCategoryExists();
   }
 
   @Delete(':categoryId')

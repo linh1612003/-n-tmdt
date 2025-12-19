@@ -15,11 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const register_user_dto_1 = require("./dto/register-user.dto");
-const check_email_dto_1 = require("./dto/check-email.dto");
-const verify_otp_dto_1 = require("./dto/verify-otp.dto");
 const login_dto_1 = require("./dto/login.dto");
-const forgot_password_dto_1 = require("./dto/forgot-password.dto");
-const reset_password_dto_1 = require("./dto/reset-password.dto");
 const passport_1 = require("@nestjs/passport");
 const jwt_1 = require("@nestjs/jwt");
 const auth_service_1 = require("./services/auth.service");
@@ -33,12 +29,6 @@ let AuthController = class AuthController {
     }
     register(registerUserDto) {
         return this.authService.register(registerUserDto);
-    }
-    checkEmailAndSendOtp(checkEmailDto) {
-        return this.authService.checkEmailAndSendOtp(checkEmailDto.email);
-    }
-    verifyOtpAndRegister(verifyOtpDto) {
-        return this.authService.verifyOtpAndRegister(verifyOtpDto);
     }
     login(loginUser, res) {
         return this.authService.login(loginUser, res);
@@ -61,12 +51,6 @@ let AuthController = class AuthController {
         const refreshToken = req.cookies.refreshToken;
         return await this.authService.refreshToken(refreshToken);
     }
-    requestPasswordReset(forgotPasswordDto) {
-        return this.authService.requestPasswordReset(forgotPasswordDto);
-    }
-    resetPassword(resetPasswordDto) {
-        return this.authService.resetPassword(resetPasswordDto);
-    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -83,20 +67,6 @@ __decorate([
     __metadata("design:paramtypes", [register_user_dto_1.RegisterUserDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "register", null);
-__decorate([
-    (0, common_1.Post)('check-email'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [check_email_dto_1.CheckEmailDto]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "checkEmailAndSendOtp", null);
-__decorate([
-    (0, common_1.Post)('verify-otp'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [verify_otp_dto_1.VerifyOtpDto]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "verifyOtpAndRegister", null);
 __decorate([
     (0, common_1.Post)('login'),
     __param(0, (0, common_1.Body)()),
@@ -145,20 +115,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refreshToken", null);
-__decorate([
-    (0, common_1.Post)('forgot-password'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [forgot_password_dto_1.ForgotPasswordDto]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "requestPasswordReset", null);
-__decorate([
-    (0, common_1.Post)('reset-password'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [reset_password_dto_1.ResetPasswordDto]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "resetPassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService,

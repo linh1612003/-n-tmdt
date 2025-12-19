@@ -1,5 +1,6 @@
 import { ProductRepository } from '../repository/product.repository';
 import { CreateProductDto } from '../dto/createProduct.dto';
+import { UpdateProductDto } from '../dto/UpdateProduct.dto';
 import { TypeService } from 'src/type/service/type.service';
 import { Product } from '../schema/product.shema';
 export declare class ProductService {
@@ -15,16 +16,15 @@ export declare class ProductService {
     getAllProducts(): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>)[]>;
-    searchProducts(searchTerm: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
-        _id: unknown;
-    }>)[]>;
     getProductById(productId: string): Promise<import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>>;
     getProductByTypeId(typeId: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
         _id: unknown;
     }>)[]>;
-    getProductsByAvailabilityStatus(categoryId: string): Promise<any[]>;
+    getProductsByAvailabilityStatus(categoryId: string): Promise<(import("mongoose").Document<unknown, {}, Product> & Product & Required<{
+        _id: unknown;
+    }>)[]>;
     updateImagesOfProduct(productId: string, urlFiles: string[]): Promise<{
         message: string;
     }>;
@@ -40,7 +40,10 @@ export declare class ProductService {
     deleteProductById(productId: string): Promise<{
         message: string;
     }>;
-    updateProductById(productId: string, updateProductDto: CreateProductDto): Promise<{
+    updateProductById(productId: string, updateProductDto: UpdateProductDto): Promise<{
         message: string;
+        data: import("mongoose").Document<unknown, {}, Product> & Product & Required<{
+            _id: unknown;
+        }>;
     }>;
 }

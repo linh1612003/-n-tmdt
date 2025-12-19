@@ -11,25 +11,14 @@ export class CategoryRepository {
     private categoryModel: Model<Category>,
   ) {}
 
-  async findByAvailabilityStatus(availabilityStatus: string) {
-    return await this.categoryModel.aggregate([
-      {
-        $match: { availabilityStatus: availabilityStatus },
-      },
-      {
-        $lookup: {
-          from: 'types',
-          localField: '_id',
-          foreignField: 'categoryId',
-          as: 'type',
-        },
-      },
-    ]);
-  }
-
   async findById(categoryId: string) {
     return await this.categoryModel.findById(categoryId);
   }
+
+  async findByName(name: string) {
+    return await this.categoryModel.findOne({ name: name });
+  }
+
   async getAll() {
     return await this.categoryModel.find();
   }
@@ -50,3 +39,5 @@ export class CategoryRepository {
     );
   }
 }
+
+

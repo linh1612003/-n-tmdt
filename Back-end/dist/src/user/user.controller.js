@@ -16,45 +16,18 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./services/user.service");
 const update_user_Dto_1 = require("./dto/update-user.Dto");
-const user_repository_1 = require("./repository/user.repository");
 let UserController = class UserController {
-    constructor(userService, userRepository) {
+    constructor(userService) {
         this.userService = userService;
-        this.userRepository = userRepository;
-    }
-    async updateShippingInfo(userId, data) {
-        console.log('=== UserController - updateShippingInfo ===');
-        console.log('userId:', userId);
-        console.log('received data:', JSON.stringify(data, null, 2));
-        try {
-            const result = await this.userService.updateShippingInfo(userId, data);
-            console.log('UserController - updateShippingInfo - result:', result);
-            const updatedUser = await this.userRepository.findById(userId);
-            console.log('UserController - Verified saved data:');
-            console.log('  - address:', updatedUser?.address);
-            console.log('  - addressDetail:', updatedUser?.addressDetail);
-            console.log('  - contactPhone:', updatedUser?.contactPhone);
-            console.log('=== End UserController - updateShippingInfo ===');
-            return result;
-        }
-        catch (error) {
-            console.error('UserController - updateShippingInfo - error:', error);
-            throw error;
-        }
     }
     async updateUser(userId, updateUserDto) {
         return this.userService.updateUser(userId, updateUserDto);
     }
+    updateShippingInfo(userId, data) {
+        return this.userService.updateShippingInfo(userId, data);
+    }
 };
 exports.UserController = UserController;
-__decorate([
-    (0, common_1.Put)(':userId/shipping-infor'),
-    __param(0, (0, common_1.Param)('userId')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "updateShippingInfo", null);
 __decorate([
     (0, common_1.Put)(':userId'),
     __param(0, (0, common_1.Param)('userId')),
@@ -63,9 +36,16 @@ __decorate([
     __metadata("design:paramtypes", [String, update_user_Dto_1.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateUser", null);
+__decorate([
+    (0, common_1.Put)(':userId/shipping-infor'),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "updateShippingInfo", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('users'),
-    __metadata("design:paramtypes", [user_service_1.UserService,
-        user_repository_1.UserRepository])
+    __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);
 //# sourceMappingURL=user.controller.js.map

@@ -67,9 +67,6 @@ let AuthRepository = class AuthRepository {
             username: username,
         }).lean();
     }
-    async updateUser(username, updateData) {
-        return await this.UserModel.findOneAndUpdate({ username: username }, updateData, { new: true });
-    }
 };
 exports.AuthRepository = AuthRepository;
 exports.AuthRepository = AuthRepository = __decorate([

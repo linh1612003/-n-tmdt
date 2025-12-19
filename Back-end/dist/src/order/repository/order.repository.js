@@ -22,65 +22,10 @@ let OrderRepository = class OrderRepository {
         this.orderModel = orderModel;
     }
     async getAll() {
-        return await this.orderModel.find();
+        return await this.orderModel.find().sort({ orderDate: -1 });
     }
     async findOrderUser(userId) {
-        const userIdString = userId.toString();
-        console.log('findOrderUser - searching for userId:', userIdString);
-        console.log('findOrderUser - userId type:', userId.constructor.name);
-        const orders = await this.orderModel.find({ userId: userId });
-        console.log('findOrderUser - query returned:', orders.length, 'orders');
-        const uniqueUserIds = new Set();
-        const userIdCounts = new Map();
-        orders.forEach((order, index) => {
-            if (order.userId) {
-                const orderUserIdStr = String(order.userId).trim().toLowerCase();
-                uniqueUserIds.add(orderUserIdStr);
-                userIdCounts.set(orderUserIdStr, (userIdCounts.get(orderUserIdStr) || 0) + 1);
-                if (index < 10) {
-                    console.log(`findOrderUser - Order ${index + 1} userId:`, orderUserIdStr, 'matches:', orderUserIdStr === userIdString.toLowerCase());
-                }
-            }
-        });
-        console.log('findOrderUser - UNIQUE userIds in result:', Array.from(uniqueUserIds));
-        console.log('findOrderUser - Total unique userIds:', uniqueUserIds.size);
-        console.log('findOrderUser - UserId counts:', Object.fromEntries(userIdCounts));
-        if (uniqueUserIds.size > 1) {
-            console.error('findOrderUser - ERROR: Query returned orders from multiple users!', {
-                targetUserId: userIdString,
-                foundUserIds: Array.from(uniqueUserIds),
-                totalOrders: orders.length,
-                userIdCounts: Object.fromEntries(userIdCounts)
-            });
-        }
-        const targetUserIdNormalized = userIdString.trim().toLowerCase();
-        const filteredOrders = orders.filter(order => {
-            if (!order || !order.userId) {
-                console.warn('findOrderUser - Order missing userId:', order?._id?.toString());
-                return false;
-            }
-            const orderUserIdStr = String(order.userId).trim().toLowerCase();
-            const matches = orderUserIdStr === targetUserIdNormalized;
-            if (!matches) {
-                console.error('findOrderUser - SECURITY: Order filtered out - userId mismatch!', {
-                    orderId: order._id?.toString(),
-                    orderUserId: String(order.userId),
-                    orderUserIdNormalized: orderUserIdStr,
-                    targetUserId: userIdString,
-                    targetUserIdNormalized
-                });
-            }
-            return matches;
-        });
-        console.log('findOrderUser - filtered orders AFTER filter:', filteredOrders.length);
-        if (orders.length !== filteredOrders.length) {
-            console.error('findOrderUser - WARNING: Some orders were filtered out!', {
-                original: orders.length,
-                filtered: filteredOrders.length,
-                filteredOut: orders.length - filteredOrders.length
-            });
-        }
-        return filteredOrders;
+        return await this.orderModel.find({ userId });
     }
     async create(newOrder) {
         return this.orderModel.create(newOrder);
@@ -123,6 +68,76 @@ let OrderRepository = class OrderRepository {
             { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' } } }
         ]);
         return result[0]?.totalRevenue || 0;
+    }
+    async getTotalCost() {
+        const orders = await this.orderModel.find({ status: 'success' });
+        let totalCost = 0;
+        orders.forEach((order) => {
+            if (order.products && Array.isArray(order.products)) {
+                order.products.forEach((product) => {
+                    const importPrice = product.importPrice || 0;
+                    const quantity = product.quantity || 0;
+                    totalCost += importPrice * quantity;
+                });
+            }
+        });
+        return totalCost;
+    }
+    async getRevenueAndProfit() {
+        const orders = await this.orderModel.find({ status: 'success' });
+        let totalRevenue = 0;
+        let totalCost = 0;
+        orders.forEach((order) => {
+            totalRevenue += order.totalAmount || 0;
+            if (order.products && Array.isArray(order.products)) {
+                order.products.forEach((product) => {
+                    const importPrice = product.importPrice || 0;
+                    const quantity = product.quantity || 0;
+                    totalCost += importPrice * quantity;
+                });
+            }
+        });
+        const profit = totalRevenue - totalCost;
+        return {
+            totalRevenue,
+            totalCost,
+            profit,
+        };
+    }
+    async getRevenueAndProfitByDateRange(startDate, endDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        const orders = await this.orderModel.find({
+            status: 'success',
+            orderDate: {
+                $gte: start,
+                $lte: end,
+            },
+        });
+        let totalRevenue = 0;
+        let totalCost = 0;
+        let orderCount = orders.length;
+        orders.forEach((order) => {
+            totalRevenue += order.totalAmount || 0;
+            if (order.products && Array.isArray(order.products)) {
+                order.products.forEach((product) => {
+                    const importPrice = product.importPrice || 0;
+                    const quantity = product.quantity || 0;
+                    totalCost += importPrice * quantity;
+                });
+            }
+        });
+        const profit = totalRevenue - totalCost;
+        return {
+            totalRevenue,
+            totalCost,
+            profit,
+            orderCount,
+            startDate: start,
+            endDate: end,
+        };
     }
 };
 exports.OrderRepository = OrderRepository;

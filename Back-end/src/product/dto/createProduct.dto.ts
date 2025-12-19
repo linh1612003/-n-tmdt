@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsArray, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsArray, IsOptional, Min, IsInt } from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -58,7 +58,20 @@ export class CreateProductDto {
   typeId: string; // Loại sản phẩm: ring, necklace, bracelet, earring, anklet
 
   @IsNotEmpty()
+  @IsString()
+  categoryId: string;
+
+  @IsNotEmpty()
   @IsArray()
   @IsString({ each: true })
   images: string[];
+
+  @IsOptional()
+  @IsInt({ message: 'Số lượng nhập vào phải là số nguyên' })
+  @Min(1, { message: 'Số lượng nhập vào phải lớn hơn 0' })
+  quantity?: number;
+
+  @IsOptional()
+  @IsNumber()
+  importPrice?: number;
 }

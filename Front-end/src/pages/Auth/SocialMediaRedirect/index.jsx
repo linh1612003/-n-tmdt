@@ -7,19 +7,17 @@ export const SocialRedirect = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const access_token = searchParams.get("access_token");
     const refresh_token = searchParams.get("refresh_token");
-    const userId = searchParams.get("userId");
+    const userId =searchParams.get("userId");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     useEffect(() => {
         const token = {
             access_token: access_token || "",
             refresh_token: refresh_token || "",
-            userId: userId || ""
+            userId : userId || ""
         };
         localStorage.setItem("access_token", token.access_token);
         localStorage.setItem("userId", token.userId);
-        // Lưu thời gian đăng nhập để ChatWidget có thể kiểm tra
-        localStorage.setItem("login_time", Date.now().toString());
         enqueueSnackbar("Chào mừng trở lại ", { variant: '' });
         navigate("/")
     }, []);

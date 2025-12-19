@@ -23,15 +23,6 @@ import { CheckPermissionMiddleware } from 'src/middlewares/checkPermission.middl
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],
-  exports: [MongooseModule, UserRepository, UserService],
+  exports: [MongooseModule, UserRepository],
 })
-export class UserModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(VerifyTokenMiddleware)
-      .forRoutes(
-        { path: 'users/:userId/shipping-infor', method: RequestMethod.PUT },
-        { path: 'users/:userId', method: RequestMethod.PUT },
-      );
-  }
-}
+export class UserModule {}

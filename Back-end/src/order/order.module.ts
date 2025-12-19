@@ -15,6 +15,8 @@ import { CartModule } from 'src/cart/cart.module';
 import { PaymentModule } from 'src/payment/payment.module';
 import { VerifyTokenMiddleware } from 'src/middlewares/logging.middleware';
 import { UserModule } from 'src/user/user.module';
+import { NotificationModule } from 'src/notification/notification.module';
+import { ProductModule } from 'src/product/product.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { UserModule } from 'src/user/user.module';
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     CartModule,
     UserModule,
+    NotificationModule,
+    ProductModule,
   ],
   controllers: [OrderController],
   providers: [OrderService, OrderRepository, CartService],
@@ -36,7 +40,6 @@ export class OrderModule implements NestModule {
         { path: 'orders/:orderId/shipping-status', method: RequestMethod.PUT },
         { path: 'orders/:orderId/status', method: RequestMethod.PUT },
         { path: 'orders', method: RequestMethod.POST },
-        { path: 'orders/:userId/user', method: RequestMethod.GET },
       );
   }
 }

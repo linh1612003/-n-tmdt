@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 import { Order } from '../schema/order.shema';
 import { ShippingInfo } from './../schema/order.shema';
 @Injectable()
@@ -11,86 +12,11 @@ export class OrderRepository {
   ) { }
 
   async getAll() {
-    return await this.orderModel.find();
+    return await this.orderModel.find().sort({ orderDate: -1 });
   }
 
-  async findOrderUser(userId: Types.ObjectId) {
-    const userIdString = userId.toString();
-    console.log('findOrderUser - searching for userId:', userIdString);
-    console.log('findOrderUser - userId type:', userId.constructor.name);
-    
-    // Query MongoDB với ObjectId - cách chuẩn
-    const orders = await this.orderModel.find({ userId: userId });
-    
-    console.log('findOrderUser - query returned:', orders.length, 'orders');
-    
-    // Log tất cả userIds unique để kiểm tra xem có userId nào khác không
-    const uniqueUserIds = new Set();
-    const userIdCounts = new Map();
-    
-    orders.forEach((order, index) => {
-      if (order.userId) {
-        const orderUserIdStr = String(order.userId).trim().toLowerCase();
-        uniqueUserIds.add(orderUserIdStr);
-        userIdCounts.set(orderUserIdStr, (userIdCounts.get(orderUserIdStr) || 0) + 1);
-        
-        // Log 10 orders đầu tiên để debug
-        if (index < 10) {
-          console.log(`findOrderUser - Order ${index + 1} userId:`, orderUserIdStr, 'matches:', orderUserIdStr === userIdString.toLowerCase());
-        }
-      }
-    });
-    
-    console.log('findOrderUser - UNIQUE userIds in result:', Array.from(uniqueUserIds));
-    console.log('findOrderUser - Total unique userIds:', uniqueUserIds.size);
-    console.log('findOrderUser - UserId counts:', Object.fromEntries(userIdCounts));
-    
-    // Nếu có nhiều hơn 1 userId, có vấn đề!
-    if (uniqueUserIds.size > 1) {
-      console.error('findOrderUser - ERROR: Query returned orders from multiple users!', {
-        targetUserId: userIdString,
-        foundUserIds: Array.from(uniqueUserIds),
-        totalOrders: orders.length,
-        userIdCounts: Object.fromEntries(userIdCounts)
-      });
-    }
-    
-    // CRITICAL: Filter chặt chẽ để đảm bảo 100% chỉ lấy đơn hàng của user này
-    const targetUserIdNormalized = userIdString.trim().toLowerCase();
-    const filteredOrders = orders.filter(order => {
-      if (!order || !order.userId) {
-        console.warn('findOrderUser - Order missing userId:', order?._id?.toString());
-        return false;
-      }
-      
-      // Normalize order userId để so sánh
-      const orderUserIdStr = String(order.userId).trim().toLowerCase();
-      const matches = orderUserIdStr === targetUserIdNormalized;
-      
-      if (!matches) {
-        console.error('findOrderUser - SECURITY: Order filtered out - userId mismatch!', {
-          orderId: order._id?.toString(),
-          orderUserId: String(order.userId),
-          orderUserIdNormalized: orderUserIdStr,
-          targetUserId: userIdString,
-          targetUserIdNormalized
-        });
-      }
-      
-      return matches;
-    });
-    
-    console.log('findOrderUser - filtered orders AFTER filter:', filteredOrders.length);
-    
-    if (orders.length !== filteredOrders.length) {
-      console.error('findOrderUser - WARNING: Some orders were filtered out!', {
-        original: orders.length,
-        filtered: filteredOrders.length,
-        filteredOut: orders.length - filteredOrders.length
-      });
-    }
-    
-    return filteredOrders;
+  async findOrderUser(userId: ObjectId) {
+    return await this.orderModel.find({ userId });
   }
   async create(newOrder: any) {
     return this.orderModel.create(newOrder);
@@ -161,5 +87,94 @@ export class OrderRepository {
       { $group: { _id: null, totalRevenue: { $sum: '$totalAmount' } } }
     ]);
     return result[0]?.totalRevenue || 0;
+  }
+
+  async getTotalCost() {
+    // Tính tổng giá vốn từ các đơn hàng đã hoàn thành
+    const orders = await this.orderModel.find({ status: 'success' });
+    let totalCost = 0;
+    
+    orders.forEach((order) => {
+      if (order.products && Array.isArray(order.products)) {
+        order.products.forEach((product: any) => {
+          const importPrice = product.importPrice || 0;
+          const quantity = product.quantity || 0;
+          totalCost += importPrice * quantity;
+        });
+      }
+    });
+    
+    return totalCost;
+  }
+
+  async getRevenueAndProfit() {
+    // Tính cả doanh thu, giá vốn và lợi nhuận
+    const orders = await this.orderModel.find({ status: 'success' });
+    let totalRevenue = 0;
+    let totalCost = 0;
+    
+    orders.forEach((order) => {
+      totalRevenue += order.totalAmount || 0;
+      
+      if (order.products && Array.isArray(order.products)) {
+        order.products.forEach((product: any) => {
+          const importPrice = product.importPrice || 0;
+          const quantity = product.quantity || 0;
+          totalCost += importPrice * quantity;
+        });
+      }
+    });
+    
+    const profit = totalRevenue - totalCost;
+    
+    return {
+      totalRevenue,
+      totalCost,
+      profit,
+    };
+  }
+
+  async getRevenueAndProfitByDateRange(startDate: Date, endDate: Date) {
+    // Tính cả doanh thu, giá vốn và lợi nhuận theo khoảng thời gian
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    
+    const orders = await this.orderModel.find({
+      status: 'success',
+      orderDate: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+    
+    let totalRevenue = 0;
+    let totalCost = 0;
+    let orderCount = orders.length;
+    
+    orders.forEach((order) => {
+      totalRevenue += order.totalAmount || 0;
+      
+      if (order.products && Array.isArray(order.products)) {
+        order.products.forEach((product: any) => {
+          const importPrice = product.importPrice || 0;
+          const quantity = product.quantity || 0;
+          totalCost += importPrice * quantity;
+        });
+      }
+    });
+    
+    const profit = totalRevenue - totalCost;
+    
+    return {
+      totalRevenue,
+      totalCost,
+      profit,
+      orderCount,
+      startDate: start,
+      endDate: end,
+    };
   }
 }

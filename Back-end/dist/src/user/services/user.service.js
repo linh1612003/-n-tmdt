@@ -33,35 +33,17 @@ let UserService = class UserService {
         }
     }
     async updateShippingInfo(userId, data) {
-        console.log('UserService - updateShippingInfo - userId:', userId);
-        console.log('UserService - updateShippingInfo - data:', JSON.stringify(data, null, 2));
         const existingUser = await this.userRepository.findById(userId);
         if (!existingUser) {
             throw new common_1.NotFoundException('User not found');
         }
-        console.log('UserService - existingUser before update:');
-        console.log('  - address:', existingUser.address);
-        console.log('  - addressDetail:', existingUser.addressDetail);
-        console.log('  - contactPhone:', existingUser.contactPhone);
         try {
-            const result = await this.userRepository.updateShippingInfo(userId, data);
-            console.log('UserService - updateShippingInfo - result:', result);
-            const verifyUser = await this.userRepository.findById(userId);
-            console.log('UserService - verifyUser after update:');
-            console.log('  - address:', verifyUser?.address);
-            console.log('  - addressDetail:', verifyUser?.addressDetail);
-            console.log('  - contactPhone:', verifyUser?.contactPhone);
+            await this.userRepository.updateShippingInfo(userId, data);
             return {
                 message: 'Update shipping info successfully',
-                user: {
-                    address: verifyUser?.address,
-                    addressDetail: verifyUser?.addressDetail,
-                    contactPhone: verifyUser?.contactPhone,
-                },
             };
         }
         catch (err) {
-            console.error('UserService - updateShippingInfo - error:', err);
             throw new common_1.HttpException('Update shipping info error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

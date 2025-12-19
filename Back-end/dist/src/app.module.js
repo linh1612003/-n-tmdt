@@ -21,7 +21,8 @@ const cart_module_1 = require("./cart/cart.module");
 const menu_module_1 = require("./menu/menu.module");
 const order_module_1 = require("./order/order.module");
 const review_module_1 = require("./review/review.module");
-const chat_module_1 = require("./chat/chat.module");
+const notification_module_1 = require("./notification/notification.module");
+const admin_module_1 = require("./admin/admin.module");
 require('dotenv').config();
 let AppModule = class AppModule {
 };
@@ -33,26 +34,14 @@ exports.AppModule = AppModule = __decorate([
             serve_static_1.ServeStaticModule.forRoot({
                 rootPath: (0, path_1.join)(__dirname, '..', '..', 'uploads', 'products'),
                 serveRoot: '/api/uploads/products',
-                serveStaticOptions: {
-                    index: false,
-                    fallthrough: true,
-                },
             }),
             serve_static_1.ServeStaticModule.forRoot({
                 rootPath: (0, path_1.join)(__dirname, '..', '..', 'uploads', 'avatars'),
                 serveRoot: '/api/uploads/avatars',
-                serveStaticOptions: {
-                    index: false,
-                    fallthrough: true,
-                },
             }),
             serve_static_1.ServeStaticModule.forRoot({
                 rootPath: (0, path_1.join)(__dirname, '..', '..', 'uploads', 'types'),
                 serveRoot: '/api/uploads/types',
-                serveStaticOptions: {
-                    index: false,
-                    fallthrough: true,
-                },
             }),
             auth_module_1.AuthModule,
             user_module_1.UserModule,
@@ -64,7 +53,8 @@ exports.AppModule = AppModule = __decorate([
             menu_module_1.MenuModule,
             order_module_1.OrderModule,
             review_module_1.ReviewModule,
-            chat_module_1.ChatModule,
+            notification_module_1.NotificationModule,
+            admin_module_1.AdminModule,
         ],
     })
 ], AppModule);

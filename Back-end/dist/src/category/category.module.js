@@ -15,6 +15,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const category_shema_1 = require("./schema/category.shema");
 const user_module_1 = require("../user/user.module");
 const checkPermission_middleware_1 = require("../middlewares/checkPermission.middleware");
+const product_module_1 = require("../product/product.module");
 let CategoryModule = class CategoryModule {
     configure(consumer) {
         consumer
@@ -30,6 +31,7 @@ exports.CategoryModule = CategoryModule = __decorate([
                 { name: category_shema_1.Category.name, schema: category_shema_1.CategorySchema },
             ]),
             user_module_1.UserModule,
+            product_module_1.ProductModule,
         ],
         controllers: [category_controller_1.CategoryController],
         providers: [category_service_1.CategoryService, category_repository_1.CategoryRepository],
